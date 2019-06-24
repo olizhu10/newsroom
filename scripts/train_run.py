@@ -1,17 +1,14 @@
 import json, gzip
 import pprint
 
-path = "train.jsonl.gz"
+path = "../dataset_files/train.jsonl.gz"
 data = []
 pp = pprint.PrettyPrinter(depth=4)
 with gzip.open(path) as f:
     for ln in f:
         obj = json.loads(ln)
-        if (obj["date"] >= str(20160612000000) and obj["date"] <= str(20160614000000)
-            and "Tony" not in obj['title']
-            and "Trump" not in obj['title']
-            and ("Orlando" in obj["title"]
-            or "shooting" in obj['title'])):
+        if (obj["date"] >= str(20131205000000) and obj["date"] <= str(20131207000000)
+            and ("Mandela" in obj["title"])):
 
             info = {
                 'title': obj["title"],

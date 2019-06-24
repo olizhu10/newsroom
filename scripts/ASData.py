@@ -4,12 +4,12 @@ class ASData(object):
     INSTANCE ATTRIBUTES:
         _match [bool]: whether or not the summary is a match for the article
         _data [str]: name of jsonl file with articles
-        _coverage [float]
-        _density [float]
-        _compression [float]
+        _coverage [float]: the coverage for the article-summary pair
+        _density [float]: the density for the article-summary pair
+        _compression [float]: the compression for the article-summary pair
         """
 
-    def __init__(self, article, summary, match = False, coverage = None, density = None, compression = None):
+    def __init__(self, article, summary, match, coverage = None, density = None, compression = None):
         self._match = match
         self._article = article
         self._summary = summary
