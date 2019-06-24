@@ -15,7 +15,7 @@ _has = {
 }
 
 
-class openJsonl(object):
+class open(object):
 
     """
 
