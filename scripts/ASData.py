@@ -44,6 +44,6 @@ class ASData(object):
 
     def __repr__(self):
         if self._match == True:
-            return "Coverage: "+str(self._coverage)+", Density: "+str(self._density)+",Compression: "+str(self._compression)+'\n'
+            return "Coverage: "+str(self._coverage)+", Density: "+str(self._density)+", Compression: "+str(self._compression)+'\n'
         else:
             return "Not a match\n"

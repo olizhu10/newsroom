@@ -3,7 +3,7 @@ import numpy as np
 import fragments
 events = []
 fileName = input("Enter name of the file in events: ")
-with jsonl.open('../jsonl_files/'+fileName+'.jsonl') as f:
+with jsonl.open('../events/'+fileName+'.jsonl') as f:
     for item in f:
         events.append(item)
 density = np.ndarray(shape = (len(events), len(events)))
