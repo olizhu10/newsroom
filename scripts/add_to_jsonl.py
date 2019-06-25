@@ -1,5 +1,4 @@
-import gzip
-from jsonl import openJsonl
+import jsonl
 import sys
 
 def length():
@@ -18,7 +17,7 @@ def main():
         path = "../dataset_files/train.jsonl.gz"
         data = []
         article = {}
-        with openJsonl(path, gzip = True) as train_file:
+        with jsonl.open(path, gzip = True) as train_file:
             train = train_file.read()
             for ln in train:
                 if ln['archive'] == link:
@@ -27,7 +26,7 @@ def main():
                     break
 
         try:
-            with openJsonl(fileName) as file:
+            with jsonl.open(fileName) as file:
                 file.appendline(article)
         except:
             with open(fileName, 'w+') as file:

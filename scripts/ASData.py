@@ -7,12 +7,14 @@ class ASData(object):
         _coverage [float]: the coverage for the article-summary pair
         _density [float]: the density for the article-summary pair
         _compression [float]: the compression for the article-summary pair
+        _title [str]: the title of the article
         """
 
-    def __init__(self, article, summary, match, coverage = None, density = None, compression = None):
+    def __init__(self, article, summary, title, match, coverage = None, density = None, compression = None):
         self._match = match
         self._article = article
         self._summary = summary
+        self._title = title
         if match == True:
             self._coverage = coverage
             self._density = density
@@ -20,6 +22,9 @@ class ASData(object):
 
     def getMatch(self):
         return self._match
+
+    def getTitle(self):
+        return self._title
 
     def getCoverage(self):
         return self._coverage
