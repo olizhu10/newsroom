@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import numpy as np
 
-"""Creates matrix of article-summary pairs stored as ASData objects"""
 def data_matrix(event):
+    """Creates matrix of article-summary pairs stored as ASData objects"""
+
     #enter name of event (string)
     path = "../events/"+event+".jsonl"
     with jsonl.open(path, gzip = False) as train_file:
@@ -95,9 +96,10 @@ def data_matrix(event):
 
     return matrix
 
-"""Generates a scatter plot showing the relationship between coverage and
-density for the inputted matrix"""
 def cdplot(matrix, event):
+    """Generates a scatter plot showing the relationship between coverage and
+    density for the inputted matrix"""
+
     colors = ['red','blue','pink','yellow','black','orange','purple','green','cyan',
     'magenta','grey']
     plt.title(event)
@@ -116,8 +118,9 @@ def cdplot(matrix, event):
     plt.savefig('../events/data/'+event+'.png')
     plt.show()
 
-"""Generates a dot plot for the compression for the inputted matrix"""
 def complot(matrix, event):
+    """Generates a dot plot for the compression for the inputted matrix"""
+
     colors = ['red','blue','pink','yellow','black','orange','purple','green','cyan',
     'magenta','grey']
     plt.title(event)
