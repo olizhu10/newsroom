@@ -6,7 +6,11 @@ from sklearn import metrics
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
-
+from scipy.sparse import *
+from scipy import *
+import gensim.downloader as api
+from gensim.models import TfidfModel
+from gensim.corpora import Dictionary
 
 def window(start, end):
     """
@@ -80,17 +84,19 @@ def eps(dataset):
     plt.plot(list(range(1,4+1)), distanceDec)
     plt.show()
 
-def get_tfidf(archives):
-    """
-    Returns a sparse matrix representing the tfidf values for the articles given
-    by the archives.
-    """
+'''totalWords should be dictionary length'''
+def get_tfidf(archives, totalWords):
     identifier = get_identifier()
-    data = []
+    dataList = []
+    rowList = []
+    colList = []
     for archive in archives:
-        data.append(identifier[archive])
-
-    return data
+        for ind, pair in enum(identifier[archive], start = 0):
+            dataList.append(pair[1])
+            colList.append(pair[0]-1)
+            rowList.append(ind)
+    '''hardcoded, change as needed'''
+    return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=(len(archives), totalWords) )
 
 def cluster(start,end):
     archives = window(start, end)
