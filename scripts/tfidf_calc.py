@@ -8,6 +8,17 @@ import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 
+def run():
+    with jsonl.open('../events/Orlando.jsonl') as file:
+        data = file.read()
+    dataset = []
+    for article in data:
+        text = preprocess(article['text'])
+        dataset.append(text)
+    dict = Dictionary.load_from_text('../clustering/fullDict.txt')
+    vectors = tfidf(dataset, dict)
+    identifier(data, vectors)
+
 def identifier(articles, vectors):
     """
     Returns dictionary with archive urls of articles as keys and tf-idf vectors as values
@@ -17,25 +28,30 @@ def identifier(articles, vectors):
 
     try:
         dict = json.load('../clustering/identifier.json')
+        for x in range(len(articles)):
+            dict[articles[x]['archive']] = vectors[x]
+        json.dump(dict,'../clustering/identifier.json')
     except:
         dict = {}
-    for x in range(len(articles)):
-        dict[articles[x]['archive']] = vectors[x]
-    json.dump(dict,'../clustering/identifier.json')
+        for x in range(len(articles)):
+            dict[articles[x]['archive']] = vectors[x]
+        with open('../clustering/identifier.json', 'w+') as file:
+            json.dump(dict,file)
+
 
     return dict
 
-def tfidf(dataset):
+def tfidf(dataset, dct):
     """
     Returns list of tf-idf vectors representing each article in dataset.
     """
 
-    dct = create_dictionary()]
+    #dct = create_dictionary()
     corpus = [dct.doc2bow(line) for line in dataset]  # convert corpus to BoW format
     model = TfidfModel(corpus)  # fit model
     vectors = []
-    for doc in dataset:
-        vectors.append(model[corpus[doc]])
+    for x in range(len(dataset)):
+        vectors.append(model[corpus[x]])
 
     return vectors
 
@@ -86,8 +102,7 @@ def preprocess(s):
     s = s.split(' ')
     s = filter_stopwords(s)
     s = lemmatize_stem(s)
-
     return s
 
 if __name__ == '__main__':
-    
+    run()
