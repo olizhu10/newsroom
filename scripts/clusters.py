@@ -1,7 +1,9 @@
 import jsonl
 import sklearn
+from enum import Enum
 from tfidf_calc import tfidf, preprocess, get_identifier
 from sklearn.cluster import DBSCAN
+from sklearn.cluster import OPTICS
 from sklearn import metrics
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.neighbors import NearestNeighbors
@@ -14,7 +16,7 @@ from gensim.corpora import Dictionary
 
 def window(start, end):
     """
-    Returns set of article texts within specified start and end time.
+    Returns set of article archives within specified start and end time.
 
     start and end must be integers of format YYYYMMDDHHMMSS
     """
@@ -22,13 +24,12 @@ def window(start, end):
     path = '../dataset_files/train.jsonl.gz'
     with jsonl.open(path, gzip=True) as file:
         data = file.read()
-
     dataset = []
     for article in data:
         time = article['date']
-        if time >= start and time <= end:
+        if time >= str(start) and time <= str(end):
             dataset.append(article['archive'])
-        if time > end:
+        if time > str(end):
             break
 
     return dataset
@@ -78,79 +79,63 @@ def update_time(original, add):
     return str(new_year)+new_month+new_day+'000000'
 
 def eps(dataset):
-    nbrs = NearestNeighbors(n_neighbors=4).fit(dataset)
+    ns = 4
+    nbrs = NearestNeighbors(n_neighbors=ns).fit(dataset)
     distances, indices = nbrs.kneighbors(dataset)
-    distanceDec = sorted(distances, reverse=True)
-    plt.plot(list(range(1,4+1)), distanceDec)
+    print(distances)
+    distanceDec = sorted(distances[:,ns-1], reverse=True)
+    plt.plot(indices[:,0], distanceDec)
     plt.show()
 
-'''totalWords should be dictionary length'''
-def get_tfidf(archives, totalWords):
+
+def get_tfidf(archives):
+    totalWords = 1780255
     identifier = get_identifier()
     dataList = []
     rowList = []
     colList = []
-    for archive in archives:
-        for ind, pair in enum(identifier[archive], start = 0):
+    for ind, archive in enumerate(archives, start = 0):
+        for pair in identifier[archive]:
             dataList.append(pair[1])
             colList.append(pair[0]-1)
             rowList.append(ind)
-    '''hardcoded, change as needed'''
     return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=(len(archives), totalWords) )
 
 def cluster(start,end):
     archives = window(start, end)
-    matrix = get_tfidf()
-    e = eps(matrix)
-    db = DBSCAN(eps=e, min_samples=4).fit(matrix)
-    plot(db)
+    matrix = get_tfidf(archives)
+    clust = OPTICS().fit(matrix)
 
-def plot(db):
-    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-    core_samples_mask[db.core_sample_indices_] = True
-    labels = db.labels_
+    plot(clust)
 
-    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-    n_noise_ = list(labels).count(-1)
+def plot(clust):
+    space = np.arange(len(X))
+    reachability = clust.reachability_[clust.ordering_]
+    labels = clust.labels_[clust.ordering_]
 
-    unique_labels = set(labels)
-    colors = [plt.cm.Spectral(each)
-              for each in np.linspace(0, 1, len(unique_labels))]
-    for k, col in zip(unique_labels, colors):
-        if k == -1:
-            # Black used for noise.
-            col = [0, 0, 0, 1]
+    plt.figure(figsize=(10, 7))
+    G = gridspec.GridSpec(2, 3)
+    ax2 = plt.subplot(G[1, 0])
 
-        class_member_mask = (labels == k)
+    colors = ['g.', 'r.', 'b.', 'y.', 'c.']
+    for klass, color in zip(range(0, 5), colors):
+        Xk = X[clust.labels_ == klass]
+        ax2.plot(Xk[:, 0], Xk[:, 1], color, alpha=0.3)
+    ax2.plot(X[clust.labels_ == -1, 0], X[clust.labels_ == -1, 1], 'k+', alpha=0.1)
+    ax2.set_title('Automatic Clustering\nOPTICS')
 
-        xy = X[class_member_mask & core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
-                 markeredgecolor='k', markersize=14)
-
-        xy = X[class_member_mask & ~core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
-                 markeredgecolor='k', markersize=6)
-
-    plt.title('Estimated number of clusters: %d' % n_clusters_)
+    plt.tight_layout()
     plt.show()
 
 def main():
     start = 19970101000000
     end = update_time(start,3)
-    dict = Dictionary.load_from_text('../clustering/fullDict.txt')
     while start < 20180000000000:
         cluster(start, end)
         start = update_time(start,1)
         end = update_time(start,3)
 
 if __name__ == '__main__':
-    with jsonl.open('../events/Orlando.jsonl') as file:
-        data = file.read()
-    dataset = []
-    for article in data:
-        text = preprocess(article['text'])
-        dataset.append(text)
-    dict = Dictionary.load_from_text('../clustering/fullDict.txt')
-    vectors = tfidf(dataset,dict)
-
-    eps([dataset])
+    archives = window(20160612000000,20160614000000)
+    matrix = get_tfidf(archives)
+    eps(matrix)

@@ -2,22 +2,34 @@ import jsonl
 import json
 import re
 import nltk
-from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk.stem import SnowballStemmer, WordNetLemmatizer
 from nltk.corpus import stopwords
 import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 
 def run():
-    with jsonl.open('../events/Orlando.jsonl') as file:
+    with jsonl.open('../dataset_files/train.jsonl.gz', gzip = True) as file:
         data = file.read()
-    dataset = []
+    articles = [] #remove
+    texts = []
+    print('beginning preprocessing')
     for article in data:
-        text = preprocess(article['text'])
-        dataset.append(text)
-    dict = Dictionary.load_from_text('../clustering/fullDict.txt')
-    vectors = tfidf(dataset, dict)
-    identifier(data, vectors)
+        #change to write full
+        if article["date"] >= str(20160610000000) and article["date"] <= str(20160617000000): #remove
+            articles.append(article) #remove
+            text = preprocess(article['text'])
+            texts.append(text)
+    print('finished preprocessing')
+    print('begin creating dictionary')
+    dict = create_dictionary(articles)
+    print('finished creating dictionary')
+    print('finding tfidf vectors')
+    vectors = tfidf(texts, dict)
+    print('found tfidf vectors')
+    print('writing identifier')
+    write_identifier(articles, vectors)
+    print('finished writing identifier')
 
 def write_identifier(articles, vectors):
     """
@@ -27,7 +39,8 @@ def write_identifier(articles, vectors):
     """
 
     try:
-        dict = json.load('../clustering/identifier.json')
+        with open('../clustering/test_identifier.json', 'r') as file:
+            dict = json.load(file)
         for x in range(len(articles)):
             dict[articles[x]['archive']] = vectors[x]
         json.dump(dict,'../clustering/identifier.json')
@@ -35,12 +48,13 @@ def write_identifier(articles, vectors):
         dict = {}
         for x in range(len(articles)):
             dict[articles[x]['archive']] = vectors[x]
-        with open('../clustering/identifier.json', 'w+') as file:
+        with open('../clustering/test_identifier.json', 'w+') as file:
             json.dump(dict,file)
 
 def get_identifier():
-    file = open('../clustering/identifier.json', 'r')
-    return file
+    with open('../clustering/identifier.json', 'r') as file:
+        dict = json.load(file)
+    return dict
 
 def tfidf(dataset, dct):
     """
@@ -78,19 +92,19 @@ def filter_stopwords(words):
     return filtered_words
 
 def remove_punc(words):
-    intab = '‘’“!"%&()*+,-./:;<=>?@[\\]^_`{|}~”'
-    outtab = '                                 '
+    intab = '‘’“!"%&()*+,-./:;<=>?#@[\\]^_`{|}~”'
+    outtab = '                                  '
     trantab = str.maketrans(intab, outtab)
 
     return words.translate(trantab)
 
 def lemmatize_stem(words):
-    ps = PorterStemmer()
+    stemmer = SnowballStemmer('english', ignore_stopwords = True)
     lemmatizer = WordNetLemmatizer()
     finished_words = []
     for word in words:
         lemmatized = lemmatizer.lemmatize(word)
-        finished_words.append(ps.stem(lemmatized))
+        finished_words.append(stemmer.stem(lemmatized))
 
     return finished_words
 
@@ -101,7 +115,6 @@ def preprocess(s):
     s = s.rstrip(' ')
     s = s.lstrip(' ')
     s = s.split(' ')
-    s = filter_stopwords(s)
     s = lemmatize_stem(s)
     return s
 
