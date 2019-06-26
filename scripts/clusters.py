@@ -1,6 +1,6 @@
 import jsonl
 import sklearn
-from tfidf_calc import tfidf, preprocess
+from tfidf_calc import tfidf, preprocess, get_identifier
 from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
@@ -21,7 +21,7 @@ def window(start, end):
     for article in data:
         time = article['date']
         if time >= start and time <= end:
-            dataset.append(article['text'])
+            dataset.append(article['archive'])
         if time > end:
             break
 
@@ -78,15 +78,23 @@ def eps(dataset):
     plt.plot(list(range(1,4+1)), distanceDec)
     plt.show()
 
+def get_tfidf(archives):
+    identifier = get_identifier()
+    data = []
+    for archive in archives:
+        data.append(identifier[archive])
+    
+    return data
 
 def cluster():
     start = 19970101000000
     end = update_time(start,3)
-    dataset = window(start, end)
-
+    archives = window(start, end)
     dict = Dictionary.load_from_text('../clustering/fullDict.txt')
-    vectors = tfidf(dataset, dict)
-    identifier(data, vectors)
+    data = get_texts(articles)
+
+    identifier(dataset, vectors)
+
 
 if __name__ == '__main__':
     with jsonl.open('../events/Orlando.jsonl') as file:
@@ -95,4 +103,7 @@ if __name__ == '__main__':
     for article in data:
         text = preprocess(article['text'])
         dataset.append(text)
+    dict = Dictionary.load_from_text('../clustering/fullDict.txt')
+    vectors = tfidf(dataset,dict)
+
     eps([dataset])

@@ -19,7 +19,7 @@ def run():
     vectors = tfidf(dataset, dict)
     identifier(data, vectors)
 
-def identifier(articles, vectors):
+def write_identifier(articles, vectors):
     """
     Returns dictionary with archive urls of articles as keys and tf-idf vectors as values
     articles: list of articles in the window (dictionaries)
@@ -38,8 +38,9 @@ def identifier(articles, vectors):
         with open('../clustering/identifier.json', 'w+') as file:
             json.dump(dict,file)
 
-
-    return dict
+def get_identifier():
+    file = open('../clustering/identifier.json', 'r')
+    return file
 
 def tfidf(dataset, dct):
     """
