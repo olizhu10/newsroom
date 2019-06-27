@@ -18,16 +18,13 @@ import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 
-def window(start, end):
+def window(data, start, end):
     """
     Returns set of article archives within specified start and end time.
 
     start and end must be integers of format YYYYMMDDHHMMSS
     """
 
-    path = '../dataset_files/train.jsonl.gz'
-    with jsonl.open(path, gzip=True) as file:
-        data = file.read()
     dataset = []
     for article in data:
         time = article['date']
@@ -90,9 +87,8 @@ def eps(dataset):
     plt.show()
 
 
-def get_tfidf(archives):
+def get_tfidf(archives, identifier):
     totalWords = 1780255
-    identifier = get_identifier()
     dataList = []
     rowList = []
     colList = []
@@ -137,18 +133,19 @@ def plot(db, matrix):
     plt.title('Estimated number of clusters: %d' % n_clusters_)
 
 def group(labels, archives):
+    fileName = '../clustering/sample_clusters.jsonl'
     dict = {}
-    for x in range(len(labels)):
-        if str(labels[x]) in dict:
-            dict[str(labels[x])].append(archives[x])
-        else:
-            dict[str(labels[x])] = [archives[x]]
-    with open('../clustering/full_sample_clusters_'+str(e)+'.json', 'r') as f:
-        json.dump(dict, f)
+    with jsonl.open(fileName) as file:
+        for x in range(len(labels)):
+            if str(labels[x]) in dict:
+                dict[str(labels[x])].append(archives[x])
+            else:
+                dict[str(labels[x])] = [archives[x]]
+        file.appendline(dict)
 
 def print_clusters(e):
     pp = pprint.PrettyPrinter()
-    with open('../clustering/full_sample_clusters_'+str(e)+'.json', 'r') as f:
+    with open('../clustering/sample_clusters_'+str(e)+'.json', 'r') as f:
         dict = json.load(f)
     for key in dict:
         if key != '-1':
@@ -158,14 +155,18 @@ def print_clusters(e):
 def main():
     start = 19970101000000
     end = update_time(start,3)
+    path = '../dataset_files/train.jsonl.gz'
+    with jsonl.open(path, gzip=True) as file:
+        data = file.read()
+    identifier = get_identifier(True)
     count = 0
     while start < 20180000000000:
-        archives = window(start, end)
+        archives = window(data, start, end)
         matrix = get_tfidf(archives)
-        db = cluster(start, end)
+        db = cluster(matrix, 0.93)
         plot(db, matrix)
-        start = update_time(start,1)
-        end = update_time(start,3)
+        start = update_time(start, 1)
+        end = update_time(start, 3)
         count += 1
     plt.show()
 
@@ -175,10 +176,10 @@ def cluster_sampling(start, end, e):
     db = cluster(matrix, e)
     np.set_printoptions(threshold=sys.maxsize)
     group(db.labels_, archives)
-    print_clusters(e)
+    #print_clusters(e)
 
 if __name__ == '__main__':
-    start = 20060803000000
-    end = 20060806000000
-    e = 0.95
+    start = 20160612000000
+    end = 20160615000000
+    e = 0.93
     cluster_sampling(start, end, e)

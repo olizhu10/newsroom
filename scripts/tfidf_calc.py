@@ -44,21 +44,26 @@ def write_identifier(articles, vectors):
     """
 
     try:
-        with open('../clustering/sample_identifier.json', 'r') as file:
+        with open('../clustering/identifier.json', 'r') as file:
             dict = json.load(file)
         for x in range(len(articles)):
             dict[articles[x]['archive']] = vectors[x]
-        json.dump(dict,'../clustering/sample_identifier.json')
+        json.dump(dict,'../clustering/identifier.json')
     except:
         dict = {}
         for x in range(len(articles)):
             dict[articles[x]['archive']] = vectors[x]
-        with open('../clustering/sample_identifier.json', 'w+') as file:
+        with open('../clustering/identifier.json', 'w+') as file:
             json.dump(dict,file)
 
-def get_identifier():
-    with open('../clustering/sample_identifier.json', 'r') as file:
-        dict = json.load(file)
+def get_identifier(file):
+    if file == True:
+        with open('../clustering/identifier.json', 'r') as file:
+            dict = json.load(file)
+    else:
+        with open('../clustering/sample_identifier.json', 'r') as file:
+            dict = json.load(file)
+
     return dict
 
 def tfidf(dataset, dct):
