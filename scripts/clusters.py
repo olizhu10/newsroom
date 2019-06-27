@@ -103,8 +103,7 @@ def get_tfidf(archives):
             rowList.append(ind)
     return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=(len(archives), totalWords) )
 
-def cluster(matrix):
-    e = 0.95
+def cluster(matrix, e):
     db = DBSCAN(eps=e, min_samples=4).fit(matrix)
 
     return db
@@ -144,12 +143,12 @@ def group(labels, archives):
             dict[str(labels[x])].append(archives[x])
         else:
             dict[str(labels[x])] = [archives[x]]
-    with open('../clustering/sample_clusters.json', 'w+') as f:
+    with open('../clustering/full_sample_clusters_'+str(e)+'.json', 'r') as f:
         json.dump(dict, f)
 
-def print_clusters():
+def print_clusters(e):
     pp = pprint.PrettyPrinter()
-    with open('../clustering/sample_clusters.json', 'r') as f:
+    with open('../clustering/full_sample_clusters_'+str(e)+'.json', 'r') as f:
         dict = json.load(f)
     for key in dict:
         if key != '-1':
@@ -170,13 +169,16 @@ def main():
         count += 1
     plt.show()
 
-
-if __name__ == '__main__':
-    start = 20160612000000
-    end = 20160615000000
+def cluster_sampling(start, end, e):
     archives = window(start,end)
     matrix = get_tfidf(archives)
-    db = cluster(matrix)
+    db = cluster(matrix, e)
     np.set_printoptions(threshold=sys.maxsize)
     group(db.labels_, archives)
-    print_clusters()
+    print_clusters(e)
+
+if __name__ == '__main__':
+    start = 20060803000000
+    end = 20060806000000
+    e = 0.95
+    cluster_sampling(start, end, e)
