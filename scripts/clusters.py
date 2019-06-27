@@ -153,22 +153,21 @@ def print_clusters(e):
             pp.pprint(dict[key])
 
 def main():
-    start = 19970101000000
+    #start = 19970101000000
+    start = 20160612000000
     end = update_time(start,3)
     path = '../dataset_files/train.jsonl.gz'
     with jsonl.open(path, gzip=True) as file:
         data = file.read()
-    identifier = get_identifier(True)
+    identifier = get_identifier(False)
     count = 0
-    while start < 20180000000000:
+    while start < 20160613000000: #20180000000000:
         archives = window(data, start, end)
         matrix = get_tfidf(archives)
         db = cluster(matrix, 0.93)
-        plot(db, matrix)
         start = update_time(start, 1)
         end = update_time(start, 3)
         count += 1
-    plt.show()
 
 def cluster_sampling(start, end, e):
     archives = window(start,end)
@@ -179,7 +178,8 @@ def cluster_sampling(start, end, e):
     #print_clusters(e)
 
 if __name__ == '__main__':
-    start = 20160612000000
+    main()
+    '''start = 20160612000000
     end = 20160615000000
     e = 0.93
-    cluster_sampling(start, end, e)
+    cluster_sampling(start, end, e)'''
