@@ -7,28 +7,33 @@ from nltk.corpus import stopwords
 import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
+import csv
 
 def run():
     with jsonl.open('../dataset_files/train.jsonl.gz', gzip = True) as file:
         data = file.read()
-    articles = [] #remove
-    texts = []
     print('beginning preprocessing')
-    for article in data:
-        #change to write full
-        if article["date"] >= str(20160610000000) and article["date"] <= str(20160617000000): #remove
-            articles.append(article) #remove
+    texts = []
+    count = 0
+    with open('preprocessed.csv', 'a') as csvFile:
+        for article in data:
+            #change to write full
             text = preprocess(article['text'])
             texts.append(text)
+            writer = csv.writer(csvFile)
+            writer.writerow(text)
+            print(count)
+            count += 1
+    csvFile.close()
     print('finished preprocessing')
     print('begin creating dictionary')
-    dict = create_dictionary(articles)
+    dict = create_dictionary(data, texts)
     print('finished creating dictionary')
     print('finding tfidf vectors')
     vectors = tfidf(texts, dict)
     print('found tfidf vectors')
     print('writing identifier')
-    write_identifier(articles, vectors)
+    write_identifier(data, vectors)
     print('finished writing identifier')
 
 def write_identifier(articles, vectors):
@@ -39,20 +44,20 @@ def write_identifier(articles, vectors):
     """
 
     try:
-        with open('../clustering/test_identifier.json', 'r') as file:
+        with open('../clustering/sample_identifier.json', 'r') as file:
             dict = json.load(file)
         for x in range(len(articles)):
             dict[articles[x]['archive']] = vectors[x]
-        json.dump(dict,'../clustering/identifier.json')
+        json.dump(dict,'../clustering/sample_identifier.json')
     except:
         dict = {}
         for x in range(len(articles)):
             dict[articles[x]['archive']] = vectors[x]
-        with open('../clustering/test_identifier.json', 'w+') as file:
+        with open('../clustering/sample_identifier.json', 'w+') as file:
             json.dump(dict,file)
 
 def get_identifier():
-    with open('../clustering/identifier.json', 'r') as file:
+    with open('../clustering/sample_identifier.json', 'r') as file:
         dict = json.load(file)
     return dict
 
@@ -70,15 +75,11 @@ def tfidf(dataset, dct):
 
     return vectors
 
-def create_dictionary(dataset):
-    path = '../dataset_files/train.jsonl.gz'
-    with jsonl.open(path, gzip=True) as file:
-        dataset = file.read()
+def create_dictionary(dataset, texts):
     dict = Dictionary([])
-    for article in dataset:
-        text = preprocess(article['text'])
+    for text in texts:
         dict.add_documents([text])
-    dict.save_as_text('../dataset_files/test.txt')
+    dict.save_as_text('../dataset_files/dictionary.txt')
 
     return dict
 

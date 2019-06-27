@@ -1,5 +1,9 @@
 import jsonl
+import json
+import pprint
 import sklearn
+import numpy as np
+import sys
 from enum import Enum
 from tfidf_calc import tfidf, preprocess, get_identifier
 from sklearn.cluster import DBSCAN
@@ -29,8 +33,6 @@ def window(start, end):
         time = article['date']
         if time >= str(start) and time <= str(end):
             dataset.append(article['archive'])
-        if time > str(end):
-            break
 
     return dataset
 
@@ -97,45 +99,84 @@ def get_tfidf(archives):
     for ind, archive in enumerate(archives, start = 0):
         for pair in identifier[archive]:
             dataList.append(pair[1])
-            colList.append(pair[0]-1)
+            colList.append(pair[0])
             rowList.append(ind)
     return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=(len(archives), totalWords) )
 
-def cluster(start,end):
-    archives = window(start, end)
-    matrix = get_tfidf(archives)
-    clust = OPTICS().fit(matrix)
+def cluster(matrix):
+    e = 0.95
+    db = DBSCAN(eps=e, min_samples=4).fit(matrix)
 
-    plot(clust)
+    return db
 
-def plot(clust):
-    space = np.arange(len(X))
-    reachability = clust.reachability_[clust.ordering_]
-    labels = clust.labels_[clust.ordering_]
+def plot(db, matrix):
+    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+    core_samples_mask[db.core_sample_indices_] = True
+    labels = db.labels_
 
-    plt.figure(figsize=(10, 7))
-    G = gridspec.GridSpec(2, 3)
-    ax2 = plt.subplot(G[1, 0])
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+    n_noise_ = list(labels).count(-1)
 
-    colors = ['g.', 'r.', 'b.', 'y.', 'c.']
-    for klass, color in zip(range(0, 5), colors):
-        Xk = X[clust.labels_ == klass]
-        ax2.plot(Xk[:, 0], Xk[:, 1], color, alpha=0.3)
-    ax2.plot(X[clust.labels_ == -1, 0], X[clust.labels_ == -1, 1], 'k+', alpha=0.1)
-    ax2.set_title('Automatic Clustering\nOPTICS')
+    unique_labels = set(labels)
+    colors = [plt.cm.Spectral(each)
+              for each in np.linspace(0, 1, len(unique_labels))]
+    for k, col in zip(unique_labels, colors):
+        if k == -1:
+            # Black used for noise.
+            col = [0, 0, 0, 1]
 
-    plt.tight_layout()
-    plt.show()
+        class_member_mask = (labels == k)
+
+        xy = matrix[class_member_mask & core_samples_mask]
+        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+                 markeredgecolor='k', markersize=14)
+
+        xy = matrix[class_member_mask & ~core_samples_mask]
+        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+                 markeredgecolor='k', markersize=6)
+
+    plt.title('Estimated number of clusters: %d' % n_clusters_)
+
+def group(labels, archives):
+    dict = {}
+    for x in range(len(labels)):
+        if str(labels[x]) in dict:
+            dict[str(labels[x])].append(archives[x])
+        else:
+            dict[str(labels[x])] = [archives[x]]
+    with open('../clustering/sample_clusters.json', 'w+') as f:
+        json.dump(dict, f)
+
+def print_clusters():
+    pp = pprint.PrettyPrinter()
+    with open('../clustering/sample_clusters.json', 'r') as f:
+        dict = json.load(f)
+    for key in dict:
+        if key != '-1':
+            print('cluster '+key+':')
+            pp.pprint(dict[key])
 
 def main():
     start = 19970101000000
     end = update_time(start,3)
+    count = 0
     while start < 20180000000000:
-        cluster(start, end)
+        archives = window(start, end)
+        matrix = get_tfidf(archives)
+        db = cluster(start, end)
+        plot(db, matrix)
         start = update_time(start,1)
         end = update_time(start,3)
+        count += 1
+    plt.show()
+
 
 if __name__ == '__main__':
-    archives = window(20160612000000,20160614000000)
+    start = 20160612000000
+    end = 20160615000000
+    archives = window(start,end)
     matrix = get_tfidf(archives)
-    eps(matrix)
+    db = cluster(matrix)
+    np.set_printoptions(threshold=sys.maxsize)
+    group(db.labels_, archives)
+    print_clusters()
