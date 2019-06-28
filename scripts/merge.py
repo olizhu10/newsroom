@@ -16,10 +16,34 @@ from scipy import *
 import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
+from tqdm import tqdm
 
 
-def average(window, identifier):
-    return
+def average(window1, window2, window3, identifier):
+    totalWords = 1780255
+    dataList = []
+    rowList = []
+    colList = []
+    startInd = 0
+    startInd = average_single_window(window1, identifier, rowList, colList, dataList, startInd)
+    startInd = average_single_window(window2, identifier, rowList, colList, dataList, startInd)
+    startInd = average_single_window(window3, identifier, rowList, colList, dataList, startInd)
+
+    return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=((len(window1)+len(window2)+len(window3)), totalWords) )
+
+def average_single_window(window, identifier, rowList, colList, dataList, startRow):
+    for ind, key in enumerate(window, start = startRow):
+        matrix = get_tfidf(window[key], identifier)
+        rows = np.zeros(len(window[key]))
+        cols = range(len(window[key]))
+        S = csr_matrix((np.ones(len(window[key])), (rows, cols)), shape=(1, len(window[key])))
+        averageArray = (S * matrix).multiply(1./(matrix.shape[0]))
+        for val, col in zip(averageArray.data, averageArray.indices):
+            dataList.append(val)
+            colList.append(col)
+            rowList.append(ind)
+
+    return ind+1
 
 def cluster():
     with jsonl.open('../clustering/clusters.jsonl') as file:
@@ -30,6 +54,7 @@ def cluster():
     w1 = windows[x-2]
     w2 = windows[x-1]
     w3 = windows[x]
+    pbar = tqdm(total=len(windows), desc='clustering')
     while x < len(windows):
         matrix = average(w1, w2, w3, identifier)
         db = DBSCAN(eps=e, min_samples=2).fit(matrix)
@@ -55,10 +80,14 @@ def cluster():
         w2 = w3
         w3 = windows[x+1]
 
+        pbar.update(1)
+
+    pbar.close()
+
 def group(clusters):
     fileName = '../clustering/final_clusters.jsonl'
     with jsonl.open(fileName) as file:
-        for key in clusters:
+        for key in tqdm(clusters, desc='grouping'):
             if key == '-1':
                 for cluster in clusters[key]:
                     file.appendline(cluster)
@@ -67,7 +96,7 @@ def group(clusters):
 
 def merge(clusters):
     merged_cluster = []
-    for cluster in clusters:
+    for cluster in tqdm(clusters, desc='merging'):
         for article in cluster:
             if article not in merged_cluster:
                 merged_cluster.append(article)
