@@ -128,7 +128,7 @@ def plot(db, matrix):
     plt.title('Estimated number of clusters: %d' % n_clusters_)
 
 def group(labels, archives):
-    fileName = '../clustering/clusters.jsonl'
+    fileName = '../clustering/sample_clusters2.jsonl'
     dict = {}
     with jsonl.open(fileName) as file:
         for x in range(len(labels)):
@@ -140,7 +140,7 @@ def group(labels, archives):
         file.appendline(dict)
 
 def print_clusters():
-    fileName = '../clustering/sample_clusters.jsonl'
+    fileName = '../clustering/sample_clusters2.jsonl'
     pp = pprint.PrettyPrinter()
     dict = jsonl.read(fileName)
     for window in dict:
@@ -148,13 +148,29 @@ def print_clusters():
             print('cluster '+key+':')
             pp.pprint(window[key])
 
-def cluster_sampling(start, end, e):
-    archives = window(start,end)
-    matrix = get_tfidf(archives)
-    db = cluster(matrix, e)
-    np.set_printoptions(threshold=sys.maxsize)
-    group(db.labels_, archives)
-    #print_clusters(e)
+def cluster_sampling():
+    start = '20160610000000'
+    end = update_time(start, 3)
+    path = '../dataset_files/train.jsonl.gz'
+    print('opening file')
+    with jsonl.open(path, gzip=True) as file:
+        data = file.read()
+    print('getting identifier')
+    identifier = get_identifier(False)
+    print('starting clustering')
+    while start < '20160615000000':
+        archives = window(data, start, end)
+        matrix = get_tfidf(archives,identifier)
+        if matrix.shape[0] == 0:
+            group([],[])
+            start = update_time(start, 1)
+            end = update_time(start, 3)
+            count += 1
+            continue
+        db = cluster(matrix, 0.93)
+        group(db.labels_, archives)
+        start = update_time(start, 1)
+        end = update_time(start, 3)
 
 def main():
     start = '19980101000000'
@@ -184,4 +200,4 @@ def main():
         print(count)
 
 if __name__ == '__main__':
-    main()
+    print_clusters()
