@@ -1,5 +1,4 @@
 import jsonl
-#import json
 import pprint
 import sklearn
 import numpy as np
@@ -153,9 +152,17 @@ def print_clusters():
             print('cluster '+key+':')
             pp.pprint(window[key])
 
+def cluster_sampling(start, end, e):
+    archives = window(start,end)
+    matrix = get_tfidf(archives)
+    db = cluster(matrix, e)
+    np.set_printoptions(threshold=sys.maxsize)
+    group(db.labels_, archives)
+    #print_clusters(e)
+
 def main():
     start = '19980101000000'
-    end = update_time(start,3)
+    end = update_time(start, 3)
     path = '../dataset_files/train.jsonl.gz'
     print('opening file')
     with jsonl.open(path, gzip=True) as file:
@@ -179,14 +186,6 @@ def main():
         end = update_time(start, 3)
         count += 1
         print(count)
-
-def cluster_sampling(start, end, e):
-    archives = window(start,end)
-    matrix = get_tfidf(archives)
-    db = cluster(matrix, e)
-    np.set_printoptions(threshold=sys.maxsize)
-    group(db.labels_, archives)
-    #print_clusters(e)
 
 if __name__ == '__main__':
     main()
