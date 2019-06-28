@@ -24,10 +24,9 @@ def average(window1, window2, window3, identifier):
     dataList = []
     rowList = []
     colList = []
-    startInd = 0
-    startInd = average_single_window(window1, identifier, rowList, colList, dataList, startInd)
-    startInd = average_single_window(window2, identifier, rowList, colList, dataList, startInd)
-    startInd = average_single_window(window3, identifier, rowList, colList, dataList, startInd)
+    average_single_window(window1, identifier, rowList, colList, dataList, 0)
+    average_single_window(window2, identifier, rowList, colList, dataList, len(window1))
+    average_single_window(window3, identifier, rowList, colList, dataList, len(window1)+len(window2))
 
     return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=((len(window1)+len(window2)+len(window3)), totalWords) )
 
@@ -42,12 +41,23 @@ def average_single_window(window, identifier, rowList, colList, dataList, startR
             dataList.append(val)
             colList.append(col)
             rowList.append(ind)
+    return
 
-    return ind+1
+def trash():
+    with jsonl.open('../clustering/clusters.jsonl') as file:
+        windows = file.read()
+    clean = []
+    for window in windows:
+        if not window == {}:
+            clean.append(window)
+    with jsonl.open('../clustering/clean_clusters.jsonl') as clean_file:
+        clean_file.write(clean)
+
 
 def cluster():
     with jsonl.open('../clustering/clusters.jsonl') as file:
-        windows = jsonl.read(file)
+        windows = file.read()
+    print('getting identifier')
     identifier = get_identifier(True)
 
     x = 2
@@ -56,7 +66,15 @@ def cluster():
     w3 = windows[x]
     pbar = tqdm(total=len(windows), desc='clustering')
     while x < len(windows):
+        if w1 == {}:
+            w1=w2
+            w2=w3
+            w3=windows[x+1]
+            continue
+
         matrix = average(w1, w2, w3, identifier)
+        if matrix.shape[0] == 0:
+            continue
         db = DBSCAN(eps=e, min_samples=2).fit(matrix)
         labels = db.labels_
 
@@ -85,7 +103,7 @@ def cluster():
     pbar.close()
 
 def group(clusters):
-    fileName = '../clustering/final_clusters.jsonl'
+    fileName = '../clustering/final_sample_clusters.jsonl'
     with jsonl.open(fileName) as file:
         for key in tqdm(clusters, desc='grouping'):
             if key == '-1':
@@ -105,13 +123,54 @@ def merge(clusters):
 
 def read_clusters():
     pp = pprint.PrettyPrinter()
-    fileName = '../clustering/final_clusters.jsonl'
+    fileName = '../clustering/final_sample_clusters.jsonl'
     with jsonl.open(fileName) as file:
-        clusters = jsonl.read(file)
+        clusters = file.read()
     count = 0
     for cluster in clusters:
         print('cluster '+str(count)+':')
         pp.pprint(cluster)
 
+def sample_cluster():
+    with jsonl.open('../clustering/sample_clusters2.jsonl') as file:
+        windows = file.read()
+    identifier = get_identifier(False)
+
+    x = 2
+    w1 = windows[x-2]
+    w2 = windows[x-1]
+    w3 = windows[x]
+    pbar = tqdm(total=len(windows), desc='clustering')
+    while x < len(windows):
+        matrix = average(w1, w2, w3, identifier)
+        if matrix.shape[0] == 0:
+            continue
+        db = DBSCAN(eps=0.9, min_samples=2).fit(matrix)
+        labels = db.labels_
+
+        dict = {}
+        for x, label in enumerate(labels, 0):
+            if x < len(w1):
+                if str(label) in dict:
+                    dict[str(label)].append(w1[x])
+                else:
+                    dict[str(label)] = [w1[x]]
+            elif x >= len(w1) and x < len(w1)+len(w2):
+                if str(label) in dict:
+                    dict[str(label)].append(w2.pop(x-len(w1)))
+            else:
+                if str(label) in dict:
+                    dict[str(label)].append(w3.pop(x-len(w1)-len(w2)))
+
+        group(dict)
+
+        w1 = w2
+        w2 = w3
+        w3 = windows[x+1]
+
+        pbar.update(1)
+
+    pbar.close()
+
 if __name__ == '__main__':
-    test()
+    sample_cluster()
