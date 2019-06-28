@@ -114,4 +114,4 @@ def read_clusters():
         pp.pprint(cluster)
 
 if __name__ == '__main__':
-    test()
+    cluster()
