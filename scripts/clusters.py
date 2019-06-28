@@ -1,5 +1,5 @@
 import jsonl
-import json
+#import json
 import pprint
 import sklearn
 import numpy as np
@@ -75,7 +75,7 @@ def update_time(original, add):
     if new_day < 10:
         new_day = '0'+str(new_day)
 
-    return str(new_year)+new_month+new_day+'000000'
+    return str(new_year)+str(new_month)+str(new_day)+'000000'
 
 def eps(dataset):
     ns = 4
@@ -133,41 +133,52 @@ def plot(db, matrix):
     plt.title('Estimated number of clusters: %d' % n_clusters_)
 
 def group(labels, archives):
-    fileName = '../clustering/sample_clusters.jsonl'
+    fileName = '../clustering/clusters.jsonl'
     dict = {}
     with jsonl.open(fileName) as file:
         for x in range(len(labels)):
-            if str(labels[x]) in dict:
-                dict[str(labels[x])].append(archives[x])
-            else:
-                dict[str(labels[x])] = [archives[x]]
+            if str(labels[x]) != '-1':
+                if str(labels[x]) in dict:
+                    dict[str(labels[x])].append(archives[x])
+                else:
+                    dict[str(labels[x])] = [archives[x]]
         file.appendline(dict)
 
-def print_clusters(e):
+def print_clusters():
+    fileName = '../clustering/sample_clusters.jsonl'
     pp = pprint.PrettyPrinter()
-    with open('../clustering/sample_clusters_'+str(e)+'.json', 'r') as f:
-        dict = json.load(f)
-    for key in dict:
-        if key != '-1':
+    dict = jsonl.read(fileName)
+    for window in dict:
+        for key in window:
             print('cluster '+key+':')
-            pp.pprint(dict[key])
+            pp.pprint(window[key])
 
 def main():
-    #start = 19970101000000
-    start = 20160612000000
+    start = '19980101000000'
     end = update_time(start,3)
     path = '../dataset_files/train.jsonl.gz'
+    print('opening file')
     with jsonl.open(path, gzip=True) as file:
         data = file.read()
-    identifier = get_identifier(False)
+    print('getting identifier')
+    identifier = get_identifier(True)
+    print('starting clustering')
     count = 0
-    while start < 20160613000000: #20180000000000:
+    while start < '20180000000000':
         archives = window(data, start, end)
-        matrix = get_tfidf(archives)
+        matrix = get_tfidf(archives,identifier)
+        if matrix.shape[0] == 0:
+            group([],[])
+            start = update_time(start, 1)
+            end = update_time(start, 3)
+            count += 1
+            continue
         db = cluster(matrix, 0.93)
+        group(db.labels_, archives)
         start = update_time(start, 1)
         end = update_time(start, 3)
         count += 1
+        print(count)
 
 def cluster_sampling(start, end, e):
     archives = window(start,end)
@@ -179,7 +190,3 @@ def cluster_sampling(start, end, e):
 
 if __name__ == '__main__':
     main()
-    '''start = 20160612000000
-    end = 20160615000000
-    e = 0.93
-    cluster_sampling(start, end, e)'''
