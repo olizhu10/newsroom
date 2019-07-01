@@ -57,53 +57,61 @@ def trash():
 def cluster():
     with jsonl.open('../clustering/clusters.jsonl') as file:
         windows = file.read()
-    print('getting identifier')
     identifier = get_identifier(True)
 
-    x = 2
-    w1 = windows[x-2]
-    w2 = windows[x-1]
-    w3 = windows[x]
+    ind = 2
+    w2 = windows[ind-2]
+    w3 = windows[ind-1]
+    w2length = len(w2)
+    w3length = len(w3)
     pbar = tqdm(total=len(windows), desc='clustering')
-    while x < len(windows):
-        if w1 == {}:
-            w1=w2
-            w2=w3
-            w3=windows[x+1]
-            continue
-
+    while ind < len(windows):
+        w1 = w2
+        w2 = w3
+        w3 = windows[ind]
+        w1length = w2length
+        w2length = w3length
+        w3length = len(w3)
+        if(len(w1) == 0):
+            ind+=1
+            pbar.update(1)
+            continue;
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=e, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.85, min_samples=2).fit(matrix)
         labels = db.labels_
-
-        final_clusters = {}
-        for x, label in enumerate(labels, 0):
-            if x < len(w1):
+        count = 0
+        dict = {}
+        for x, label in enumerate(labels, start = 0):
+            if x+count < w1length:
+                if not(str(x+count) in w1):
+                    count += 1
+                    continue
                 if str(label) in dict:
-                    dict[str(label)].append(w1[x])
+                    dict[str(label)].append(w1[str(x+count)])
                 else:
-                    dict[str(label)] = w1[x]
-            elif x >= len(w1) and x < len(w1)+len(w2):
+                    dict[str(label)] = [w1[str(x+count)]]
+            elif x+count >= w1length and x+count <w1length + w2length:
+                if not(str(x+count-w1length) in w2):
+                    count += 1
+                    continue
                 if str(label) in dict:
-                    dict[str(label)].append(w2.pop(x-len(w1)))
+                    dict[str(label)].append(w2.pop(str(x+count-w1length)))
             else:
+                if not(str(x+count-w1length-w2length) in w3):
+                    count += 1
+                    continue
                 if str(label) in dict:
-                    dict[str(label)].append(w3.pop(x-len(w1)-len(w2)))
-
-        group(final_clusters)
-
-        w1 = w2
-        w2 = w3
-        w3 = windows[x+1]
-
+                    dict[str(label)].append(w3.pop(str(x+count-w1length-w2length)))
+        group(dict)
+        ind += 1
         pbar.update(1)
 
     pbar.close()
 
 def group(clusters):
-    fileName = '../clustering/final_sample_clusters.jsonl'
+    fileName = '../clustering/final_clusters.jsonl'
     with jsonl.open(fileName) as file:
         for key in tqdm(clusters, desc='grouping'):
             if key == '-1':
@@ -123,54 +131,71 @@ def merge(clusters):
 
 def read_clusters():
     pp = pprint.PrettyPrinter()
-    fileName = '../clustering/final_sample_clusters.jsonl'
+    fileName = '../clustering/final_clusters.jsonl'
     with jsonl.open(fileName) as file:
         clusters = file.read()
     count = 0
     for cluster in clusters:
         print('cluster '+str(count)+':')
         pp.pprint(cluster)
+        count += 1
 
 def sample_cluster():
     with jsonl.open('../clustering/sample_clusters2.jsonl') as file:
         windows = file.read()
     identifier = get_identifier(False)
 
-    x = 2
-    w1 = windows[x-2]
-    w2 = windows[x-1]
-    w3 = windows[x]
+    ind = 2
+    w2 = windows[ind-2]
+    w3 = windows[ind-1]
+    w2length = len(w2)
+    w3length = len(w3)
     pbar = tqdm(total=len(windows), desc='clustering')
-    while x < len(windows):
+    print(len(windows))
+    while ind < len(windows):
+        w1 = w2
+        w2 = w3
+        w3 = windows[ind]
+        w1length = w2length
+        w2length = w3length
+        w3length = len(w3)
+        if(len(w1) == 0):
+            ind+=1
+            pbar.update(1)
+            continue;
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
         db = DBSCAN(eps=0.9, min_samples=2).fit(matrix)
         labels = db.labels_
-
-        dict = {} #finished clusters
-        for x, label in enumerate(labels, 0):
-            if x < len(w1):
+        count = 0
+        dict = {}
+        for x, label in enumerate(labels, start = 0):
+            if x+count < w1length:
+                if not(str(x+count) in w1):
+                    count += 1
+                    continue
                 if str(label) in dict:
-                    dict[str(label)].append(w1[x])
+                    dict[str(label)].append(w1[str(x+count)])
                 else:
-                    dict[str(label)] = [w1[x]]
-            elif x >= len(w1) and x < len(w1)+len(w2):
+                    dict[str(label)] = [w1[str(x+count)]]
+            elif x+count >= w1length and x+count <w1length + w2length:
+                if not(str(x+count-w1length) in w2):
+                    count += 1
+                    continue
                 if str(label) in dict:
-                    dict[str(label)].append(w2.pop(x-len(w1)))
+                    dict[str(label)].append(w2.pop(str(x+count-w1length)))
             else:
+                if not(str(x+count-w1length-w2length) in w3):
+                    count += 1
+                    continue
                 if str(label) in dict:
-                    dict[str(label)].append(w3.pop(x-len(w1)-len(w2)))
-
+                    dict[str(label)].append(w3.pop(str(x+count-w1length-w2length)))
         group(dict)
-
-        w1 = w2
-        w2 = w3
-        w3 = windows[x+1]
-
+        ind += 1
         pbar.update(1)
 
     pbar.close()
 
 if __name__ == '__main__':
-    sample_cluster()
+    read_clusters()
