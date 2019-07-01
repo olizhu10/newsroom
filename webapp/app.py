@@ -1,14 +1,20 @@
 from flask import Flask, render_template
+from flask_socketio import SocketIO
+import eventlet
+import sqlite3
+import webapp.database as db
+
 app = Flask(__name__, template_folder='templates')
+socketio = SocketIO(app)
 
 @app.route('/')
 def index():
-    with jsonl.open('../final_clusters.jsonl') as f:
-        clusters = jsonl.read(f)
-    cluster=clusters[500] #cluster index
-    return render_template('index.html', cluster=cluster)
+    return render_template('base.html')
 
-def submit_summary(s):
+@socketio.on('cluster id submitted')
+def get_cluster(json):
+    cluster = db.get_articles(json[cluster_id])
+    return render_template('cluster.html', cluster=cluster)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    socketio.run(app, debug=True)

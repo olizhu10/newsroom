@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block buttons %}
+<div id= "buttons">
+  <h3>Summaries</h3>
+  <p>Select the summary you wish to display.</p>
+  <form method="post" id="summary">
+    <select>
+      {% for s in range(len(cluster)) %}
+        <option value= {{cluster[s]["summary"]}} >{{s}}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" id="summary_submit"/>
+  </form>
+
+
+  <h3>Articles</h3>
+  <p>Select the article you wish to display.</p>
+  <form method="post" id="article">
+    <select>
+      {% for a in range(len(cluster)) %}
+        <option value={{cluster[a]["text"]}}>{{a}}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" id="article_submit"/>
+  </form>
+</div>
+{% endblock %}
+
+{% block summaries %}
+{% for s in range(len(cluster)) %}
+  <div id={{s}} class="summaries">
+    <p>{{cluster[s]['text']}}</p>
+  </div>
+{% endfor %}
+<script>
+  $("div.summaries").hide();
+</script>
+{% endblock %}
+
+{% block articles %}
+{% for a in range(len(cluster)) %}
+  <div id={{a}} class="articles">
+    <p>{{cluster[a]['text']}}</p>
+  </div>
+{% endfor %}
+<script>
+  $("div.articles").hide();
+</script>
+{% endblock %}
