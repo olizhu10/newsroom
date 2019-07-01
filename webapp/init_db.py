@@ -22,4 +22,5 @@ for x in range(len(clusters)):
                 q = "INSERT INTO articles (text, summary, title, archive, cluster) VALUES (?,?,?,?,?)"
                 t = (a['text'], a['summary'], a['title'], a['archive'], x)
                 c.execute(q, t)
+                db.commit()
                 break
