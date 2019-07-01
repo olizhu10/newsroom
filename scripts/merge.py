@@ -148,7 +148,7 @@ def sample_cluster():
         db = DBSCAN(eps=0.9, min_samples=2).fit(matrix)
         labels = db.labels_
 
-        dict = {}
+        dict = {} #finished clusters
         for x, label in enumerate(labels, 0):
             if x < len(w1):
                 if str(label) in dict:

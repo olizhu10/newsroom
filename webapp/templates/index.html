@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <h3>Summaries</h3>
+    <p>Select the summary you wish to display.</p>
+    <div>
+      {% for s in range(len(cluster)) %}
+        <button value="s+{{s}}", class="summary", onclick={{submit_summary(value)}}>{{s}}</button>
+      {% endfor %}
+    </div>
+
+    <h3>Articles</h3>
+    <p>Select the article you wish to display.</p>
+    <div>
+      {% for a in range(len(cluster)) %}
+        <button value="a+{{a}}", class="article", onclick={{submit_article(value)}}>{{a}}</button>
+      {% endfor %}
+    </div>
+
+
+    <h3>Summary:</h3>
+    <div>{{display_summary()}}</div>
+
+    <h3>Article:</h3>
+    <div>{{display_article()}}</div>
+
+
+  <body>
+</html>
