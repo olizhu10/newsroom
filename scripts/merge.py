@@ -79,7 +79,7 @@ def cluster():
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=0.9, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.85, min_samples=2).fit(matrix)
         labels = db.labels_
         count = 0
         dict = {}
@@ -93,13 +93,13 @@ def cluster():
                 else:
                     dict[str(label)] = [w1[str(x+count)]]
             elif x+count >= w1length and x+count <w1length + w2length:
-                if not(str(x+count) in w2):
+                if not(str(x+count-w1length) in w2):
                     count += 1
                     continue
                 if str(label) in dict:
                     dict[str(label)].append(w2.pop(str(x+count-w1length)))
             else:
-                if not(str(x+count) in w3):
+                if not(str(x+count-w1length-w2length) in w3):
                     count += 1
                     continue
                 if str(label) in dict:
@@ -138,6 +138,7 @@ def read_clusters():
     for cluster in clusters:
         print('cluster '+str(count)+':')
         pp.pprint(cluster)
+        count += 1
 
 def sample_cluster():
     with jsonl.open('../clustering/sample_clusters2.jsonl') as file:
@@ -179,13 +180,13 @@ def sample_cluster():
                 else:
                     dict[str(label)] = [w1[str(x+count)]]
             elif x+count >= w1length and x+count <w1length + w2length:
-                if not(str(x+count) in w2):
+                if not(str(x+count-w1length) in w2):
                     count += 1
                     continue
                 if str(label) in dict:
                     dict[str(label)].append(w2.pop(str(x+count-w1length)))
             else:
-                if not(str(x+count) in w3):
+                if not(str(x+count-w1length-w2length) in w3):
                     count += 1
                     continue
                 if str(label) in dict:
@@ -197,4 +198,4 @@ def sample_cluster():
     pbar.close()
 
 if __name__ == '__main__':
-    cluster()
+    read_clusters()
