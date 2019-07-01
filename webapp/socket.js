@@ -2,11 +2,11 @@ var socket = io.connect('http://' + document.domain + ':' + location.port);
 
 $('form#cluster').on('submit', function(e)) {
     e.preventDefault()
-    let cluster_id = $('input.cluster').val()
+    let cluster_id = $('input#cluster').val()
     socket.emit('cluster id submitted', {
       cluster_id : cluster_id
     })
-    $( 'input.cluster' ).val('').focus()
+    $( 'input#cluster' ).val('').focus()
   } )
 
 

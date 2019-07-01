@@ -5,19 +5,18 @@
   <p>Select the summary you wish to display.</p>
   <form method="post" id="summary">
     <select>
-      {% for s in range(len(cluster)) %}
+      {% for s in range(cluster|length) %}
         <option value= {{cluster[s]["summary"]}} >{{s}}</option>
       {% endfor %}
     </select>
     <input type="submit" id="summary_submit"/>
   </form>
 
-
   <h3>Articles</h3>
   <p>Select the article you wish to display.</p>
   <form method="post" id="article">
     <select>
-      {% for a in range(len(cluster)) %}
+      {% for a in range(cluster|length) %}
         <option value={{cluster[a]["text"]}}>{{a}}</option>
       {% endfor %}
     </select>
@@ -27,7 +26,7 @@
 {% endblock %}
 
 {% block summaries %}
-{% for s in range(len(cluster)) %}
+{% for s in range(cluster|length) %}
   <div id={{s}} class="summaries">
     <p>{{cluster[s]['text']}}</p>
   </div>
@@ -38,7 +37,7 @@
 {% endblock %}
 
 {% block articles %}
-{% for a in range(len(cluster)) %}
+{% for a in range(cluster|length) %}
   <div id={{a}} class="articles">
     <p>{{cluster[a]['text']}}</p>
   </div>

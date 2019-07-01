@@ -4,3 +4,4 @@ dataset_files
 clustering/identifier.json
 clustering/fullDict.txt
 env
+database.db
