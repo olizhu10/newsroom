@@ -1,48 +1,40 @@
 {% extends "base.html" %}
 {% block buttons %}
 <div id= "buttons">
-  <h3>Summaries</h3>
   <p>Select the summary you wish to display.</p>
-  <form method="post" id="summary">
-    <select>
+  <form method="post" action="/summary" id="summary-form">
+    <select id="summary-select">
       {% for s in range(cluster|length) %}
-        <option value= {{cluster[s]["summary"]}} >{{s}}</option>
+        <option value= {{cluster[s]["summary"]}}>{{s}}</option>
       {% endfor %}
     </select>
-    <input type="submit" id="summary_submit"/>
+    <input type="submit" value="Submit"/>
+    {% for s in range (cluster|length) %}
+    <button type="submit" value="{{s}}" name="summary-submit">
+    {% endfor %}
+    </button>
   </form>
 
-  <h3>Articles</h3>
   <p>Select the article you wish to display.</p>
-  <form method="post" id="article">
-    <select>
+  <form method="post" id="article-form">
+    <select name="article-submit">
       {% for a in range(cluster|length) %}
         <option value={{cluster[a]["text"]}}>{{a}}</option>
       {% endfor %}
     </select>
-    <input type="submit" id="article_submit"/>
+    <input type="submit" />
   </form>
 </div>
 {% endblock %}
 
 {% block summaries %}
-{% for s in range(cluster|length) %}
-  <div id={{s}} class="summaries">
-    <p>{{cluster[s]['text']}}</p>
-  </div>
-{% endfor %}
-<script>
-  $("div.summaries").hide();
-</script>
+<div id="summary">
+  <p>{{summary}}</p>
+</div>
 {% endblock %}
 
 {% block articles %}
-{% for a in range(cluster|length) %}
-  <div id={{a}} class="articles">
-    <p>{{cluster[a]['text']}}</p>
-  </div>
-{% endfor %}
-<script>
-  $("div.articles").hide();
-</script>
+<div id="article">
+  <p>{{article}}</p>
+</div>
 {% endblock %}

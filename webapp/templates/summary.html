@@ -1,0 +1,18 @@
+{% extends "cluster.html" %}
+{% block buttons %}
+{{super()}}
+{% endblock %}
+
+{% block summaries %}
+<h3>Summary:</h3>
+<div id="summary">
+  <p>{{summary}}</p>
+</div>
+{% endblock %}
+
+{% block articles %}
+<h3>Article:</h3>
+<div id="article">
+  <p>{{article}}</p>
+</div>
+{% endblock %}

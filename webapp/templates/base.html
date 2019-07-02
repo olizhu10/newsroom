@@ -3,14 +3,18 @@
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
-    <script type="text/javascript" src="socket.js"></script>
+    <script type="text/javascript">
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+      
+      </script>
   </head>
 
   <body>
     {% block cluster %}
     <p>Please enter the cluster you'd like to analyze.</p>
-    <form action="/cluster" method="POST" >
-      Cluster index: <input type="text" name="cluster"/>
+    <form id="cluster">
+      Cluster index: <input type="text" id="cluster"/>
       <input type="submit" value="Submit"/>
     </form>
     {% endblock %}
