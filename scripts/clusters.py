@@ -140,10 +140,13 @@ def group(labels, archives):
         file.appendline(dict)
 
 def print_clusters():
-    fileName = '../clustering/sample_clusters2.jsonl'
+    fileName = '../clustering/clusters.jsonl'
     pp = pprint.PrettyPrinter()
     dict = jsonl.read(fileName)
+    count = 0
     for window in dict:
+        count+=1
+        print("Window #"+str(count)+"\n\n\n")
         for key in window:
             print('cluster '+key+':')
             pp.pprint(window[key])

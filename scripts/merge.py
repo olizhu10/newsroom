@@ -1,5 +1,4 @@
 import jsonl
-import pprint
 import sklearn
 import numpy as np
 import sys
@@ -64,7 +63,7 @@ def cluster():
     w3 = windows[ind-1]
     w2length = len(w2)
     w3length = len(w3)
-    pbar = tqdm(total=len(windows), desc='clustering')
+    pbar = tqdm(total=len(windows), desc='clustering', initial=2)
     while ind < len(windows):
         w1 = w2
         w2 = w3
@@ -79,7 +78,7 @@ def cluster():
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=0.85, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.8, min_samples=2).fit(matrix)
         labels = db.labels_
         count = 0
         dict = {}
@@ -129,19 +128,8 @@ def merge(clusters):
 
     return merged_cluster
 
-def read_clusters():
-    pp = pprint.PrettyPrinter()
-    fileName = '../clustering/final_clusters.jsonl'
-    with jsonl.open(fileName) as file:
-        clusters = file.read()
-    count = 0
-    for cluster in clusters:
-        print('cluster '+str(count)+':')
-        pp.pprint(cluster)
-        count += 1
-
 def sample_cluster():
-    with jsonl.open('../clustering/sample_clusters2.jsonl') as file:
+    with jsonl.open('../clustering/sample_clusters.jsonl') as file:
         windows = file.read()
     identifier = get_identifier(False)
 
@@ -166,7 +154,7 @@ def sample_cluster():
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=0.9, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.8, min_samples=2).fit(matrix)
         labels = db.labels_
         count = 0
         dict = {}
@@ -197,5 +185,36 @@ def sample_cluster():
 
     pbar.close()
 
+def test_cluster():
+    with jsonl.open('../clustering/clusters.jsonl') as file:
+        windows = file.read()
+    identifier = get_identifier(True)
+
+    ind = 6907
+    w2 = windows[ind-2]
+    w3 = windows[ind-1]
+    w2length = len(w2)
+    w3length = len(w3)
+    while ind < 6912:
+        w1 = w2
+        w2 = w3
+        w3 = windows[ind]
+        w1length = w2length
+        w2length = w3length
+        w3length = len(w3)
+        if(len(w1) == 0):
+            ind+=1
+            pbar.update(1)
+            continue;
+        matrix = average(w1, w2, w3, identifier)
+        if matrix.shape[0] == 0:
+            continue
+        db = DBSCAN(eps=0.8, min_samples=2).fit(matrix)
+        labels = db.labels_
+        count = 0
+        dict = {}
+
+        ind += 1
+
 if __name__ == '__main__':
-    read_clusters()
+    cluster()

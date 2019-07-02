@@ -33,7 +33,7 @@ def main():
     c.execute(q)
     #Add articles to database
     pbar = tqdm(total=len(clusters), desc='Generating Database:')
-    with Pool(processes=4) as pool:
+    with Pool(processes=17) as pool:
         for tList in pool.imap_unordered(addArticle, range(len(clusters))):
             q = "INSERT INTO articles (text, summary, title, archive, cluster) VALUES (?,?,?,?,?)"
             for t in tList:
