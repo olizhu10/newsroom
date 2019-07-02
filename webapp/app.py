@@ -16,17 +16,17 @@ def index():
 def get_cluster():
     if request.method == 'POST':
         cluster_id = request.form['cluster']
+        global cluster
         cluster = db.get_articles(cluster_id)
-        socketio.emit('cluster retrieved', cluster)
         return render_template('cluster.html', cluster=cluster)
 
-@app.route('/article', methods=['POST'])
-def get_article():
-    if request.method == 'POST':
-        text = request.form['article-submit']
-        json = {'text': text}
-    socketio.emit('article selected', json)
-    return render_template('article.html', article=text)
+@socketio.on('send summary cluster')
+def send_cluster():
+    socketio.emit('summary cluster retrieved', cluster)
+
+@socketio.on('send article cluster')
+def send_cluster():
+    socketio.emit('article cluster retrieved', cluster)
 
 @app.route('/summary', methods=['POST', 'GET'])
 def get_summary():

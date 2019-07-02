@@ -1,6 +1,5 @@
 $(document).ready(function() {
   var socket = io.connect('http://' + document.domain + ':' + location.port);
-  var cluster = []
 
   $(document).on('submit', 'form#cluster', function(e) {
       e.preventDefault()
@@ -12,7 +11,7 @@ $(document).ready(function() {
       $( 'input#cluster' ).val('').focus()
     } );
 
-  socket.on('cluster received', function(msg) {
+  socket.on('cluster retrieved', function(msg) {
     cluster = msg
     console.log(cluster)
   })

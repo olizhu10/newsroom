@@ -4,24 +4,32 @@
   var socket = io.connect('http://' + document.domain + ':' + location.port);
   var cluster;
 
-  socket.on('cluster received', function(msg) {
-    let cluster = msg;
-    console.log(cluster);
-  });
-
   $(document).on('submit', 'form#summary-form', function(e) {
     e.preventDefault();
-    let index = $('select#summary-select').val();
-    let summary = document.getElementById('summary-text');
-    summary.innerHTML = cluster[index];
+    socket.emit('send summary cluster')
   });
 
   $(document).on('submit', 'form#article-form', function(e) {
     e.preventDefault();
+    socket.emit('send article cluster')
+  });
+
+  socket.on('summary cluster retrieved', function(msg) {
+    let cluster = msg;
+    console.log(cluster);
+    let index = $('select#summary-select').val();
+    let summary = document.getElementById('summary-text');
+    summary.innerHTML = cluster[index][1];
+  });
+
+  socket.on('article cluster retrieved', function(msg) {
+    let cluster = msg;
+    console.log(cluster);
     let index = $('select#article-select').val();
     let article = document.getElementById('article-text');
-    article.innerHTML = cluster[index];
+    article.innerHTML = cluster[index][0];
   });
+
   </script>
 {% endblock %}
 {% block buttons %}
@@ -30,28 +38,20 @@
   <form id="summary-form">
     <select id="summary-select">
       {% for s in range(cluster|length) %}
-        <option value= {{cluster[s]["summary"]}}>{{s}}</option>
+        <option value= {{s}}>{{s}}</option>
       {% endfor %}
     </select>
     <input type="submit" value="Submit"/>
-    {% for s in range (cluster|length) %}
-    <button type="submit" value="{{s}}" name="summary-submit">
-    {% endfor %}
-    </button>
   </form>
 
   <p>Select the article you wish to display.</p>
   <form id="article-form">
     <select id="article-select">
       {% for s in range(cluster|length) %}
-        <option value= {{cluster[s]["summary"]}}>{{s}}</option>
+        <option value= {{s}}>{{s}}</option>
       {% endfor %}
     </select>
     <input type="submit" value="Submit"/>
-    {% for s in range (cluster|length) %}
-    <button type="submit" value="{{s}}" name="article-submit">
-    {% endfor %}
-    </button>
   </form>
 </div>
 {% endblock %}
