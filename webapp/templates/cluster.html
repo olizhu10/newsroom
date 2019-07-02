@@ -1,8 +1,33 @@
 {% extends "base.html" %}
+{% block script %}
+<script type="text/javascript">
+  var socket = io.connect('http://' + document.domain + ':' + location.port);
+  var cluster;
+
+  socket.on('cluster received', function(msg) {
+    let cluster = msg;
+    console.log(cluster);
+  });
+
+  $(document).on('submit', 'form#summary-form', function(e) {
+    e.preventDefault();
+    let index = $('select#summary-select').val();
+    let summary = document.getElementById('summary-text');
+    summary.innerHTML = cluster[index];
+  });
+
+  $(document).on('submit', 'form#article-form', function(e) {
+    e.preventDefault();
+    let index = $('select#article-select').val();
+    let article = document.getElementById('article-text');
+    article.innerHTML = cluster[index];
+  });
+  </script>
+{% endblock %}
 {% block buttons %}
 <div id= "buttons">
   <p>Select the summary you wish to display.</p>
-  <form method="post" action="/summary" id="summary-form">
+  <form id="summary-form">
     <select id="summary-select">
       {% for s in range(cluster|length) %}
         <option value= {{cluster[s]["summary"]}}>{{s}}</option>
@@ -16,25 +41,31 @@
   </form>
 
   <p>Select the article you wish to display.</p>
-  <form method="post" id="article-form">
-    <select name="article-submit">
-      {% for a in range(cluster|length) %}
-        <option value={{cluster[a]["text"]}}>{{a}}</option>
+  <form id="article-form">
+    <select id="article-select">
+      {% for s in range(cluster|length) %}
+        <option value= {{cluster[s]["summary"]}}>{{s}}</option>
       {% endfor %}
     </select>
-    <input type="submit" />
+    <input type="submit" value="Submit"/>
+    {% for s in range (cluster|length) %}
+    <button type="submit" value="{{s}}" name="article-submit">
+    {% endfor %}
+    </button>
   </form>
 </div>
 {% endblock %}
 
 {% block summaries %}
 <div id="summary">
-  <p>{{summary}}</p>
+  <h3>Summary:</h3>
+  <p id="summary-text"></p>
 </div>
 {% endblock %}
 
 {% block articles %}
 <div id="article">
-  <p>{{article}}</p>
+  <h3>Article:</h3>
+  <p id="article-text"></p>
 </div>
 {% endblock %}

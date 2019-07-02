@@ -12,14 +12,17 @@ $(document).ready(function() {
       $( 'input#cluster' ).val('').focus()
     } );
 
-  socket.on('cluster received', function(json) {
-    let cluster = json['cluster']
+  socket.on('cluster received', function(msg) {
+    cluster = msg
+    console.log(cluster)
   })
 
   $(document).on('submit', 'form#summary-form', function(e) {
     e.preventDefault()
     let index = $('select#summary-select').val()
-    $('div#summary')
+    let summary = $('div#summary')
+    let text = createTextNode(cluster[index])
+    summary.appendChild(text)
   })
 
   $('#summary').on('submit', function(e) {

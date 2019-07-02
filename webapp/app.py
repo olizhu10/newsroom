@@ -17,7 +17,6 @@ def get_cluster():
     if request.method == 'POST':
         cluster_id = request.form['cluster']
         cluster = db.get_articles(cluster_id)
-        json = { cluster: cluster}
         socketio.emit('cluster retrieved', cluster)
         return render_template('cluster.html', cluster=cluster)
 
