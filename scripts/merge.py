@@ -213,7 +213,18 @@ def test_cluster():
         labels = db.labels_
         count = 0
         dict = {}
-
+        for x, label in enumerate(labels, start = 0):
+            if x+count < w1length:
+                if str(label) in dict:
+                    dict[str(label)].append(w1[str(x+count)])
+                else:
+                    dict[str(label)] = [w1[str(x+count)]]
+            elif x+count >= w1length and x+count <w1length + w2length:
+                if str(label) in dict:
+                    dict[str(label)].append(w2[str(x+count-w1length)])
+            else:
+                if str(label) in dict:
+                    dict[str(label)].append(w3[str(x+count-w1length-w2length)])
         ind += 1
 
 if __name__ == '__main__':
