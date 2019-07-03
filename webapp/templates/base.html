@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css?u={{ last_updated }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
-    {% block script %}
-    {% endblock %}
+    <script type="text/javascript" src="/static/socket.js?u={{ last_updated }}"></script>
   </head>
 
   <body>
-    {% block cluster %}
-    <p>Please enter the cluster you'd like to analyze.</p>
-    <form id="cluster" action="/cluster" method="POST">
-      Cluster index: <input type="text" name="cluster"/>
-      <input type="submit" value="Submit"/>
-    </form>
+    <div id="selection">
+      {% block cluster %}
+      <div id="cluster-select">
+        <p class="prompt">Please enter the cluster you'd like to analyze.</p>
+        <form id="cluster" action="/cluster" method="POST">
+          Cluster index: <input type="text" name="cluster"/>
+          <input type="submit" value="Submit" id="cluster-submit"/>
+        </form>
+      </div>
+      {% endblock %}
+
+      {% block buttons %}
+      {% endblock %}
+    </div>
+
+    {% block texts %}
     {% endblock %}
 
-    {% block buttons %}
+    {% block info %}
     {% endblock %}
-
-    {% block summaries %}
-    {% endblock %}
-
-    {% block articles %}
-    {% endblock %}
-
   <body>
 </html>

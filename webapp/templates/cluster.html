@@ -1,70 +1,45 @@
 {% extends "base.html" %}
-{% block script %}
-<script type="text/javascript">
-  var socket = io.connect('http://' + document.domain + ':' + location.port);
-  var cluster;
-
-  $(document).on('submit', 'form#summary-form', function(e) {
-    e.preventDefault();
-    socket.emit('send summary cluster')
-  });
-
-  $(document).on('submit', 'form#article-form', function(e) {
-    e.preventDefault();
-    socket.emit('send article cluster')
-  });
-
-  socket.on('summary cluster retrieved', function(msg) {
-    let cluster = msg;
-    console.log(cluster);
-    let index = $('select#summary-select').val();
-    let summary = document.getElementById('summary-text');
-    summary.innerHTML = cluster[index][1];
-  });
-
-  socket.on('article cluster retrieved', function(msg) {
-    let cluster = msg;
-    console.log(cluster);
-    let index = $('select#article-select').val();
-    let article = document.getElementById('article-text');
-    article.innerHTML = cluster[index][0];
-  });
-</script>
-{% endblock %}
 {% block buttons %}
 <div id= "buttons">
-  <p>Select the summary you wish to display.</p>
-  <form id="summary-form">
+  <form id="select-form">
+    <p class="prompt">Select the summary you wish to display.</p>
     <select id="summary-select">
       {% for s in range(cluster|length) %}
         <option value= {{s}}>{{s}}</option>
       {% endfor %}
     </select>
-    <input type="submit" value="Submit"/>
-  </form>
 
-  <p>Select the article you wish to display.</p>
-  <form id="article-form">
+    <p class="prompt">Select the article you wish to display.</p>
     <select id="article-select">
       {% for s in range(cluster|length) %}
         <option value= {{s}}>{{s}}</option>
       {% endfor %}
-    </select>
+    </select><br>
     <input type="submit" value="Submit"/>
   </form>
 </div>
 {% endblock %}
 
-{% block summaries %}
-<div id="summary">
-  <h3>Summary:</h3>
-  <p id="summary-text"></p>
-</div>
-{% endblock %}
+  {% block texts %}
+  <div id="texts">
+    <div id="summary">
+      <h3>Summary:</h3>
+      <p id="summary-text">No summary selected.</p>
+    </div>
 
-{% block articles %}
-<div id="article">
-  <h3>Article:</h3>
-  <p id="article-text"></p>
-</div>
-{% endblock %}
+    <div id="article">
+      <h3>Article:</h3>
+      <p id="article-text">No article selected.</p>
+    </div>
+  </div>
+  {% endblock %}
+
+  {% block info %}
+  <div id="info">
+    <strong>Information:</strong>
+    <p id="density"></p>
+    <p id="coverage"></p>
+    <p id="compression"></p>
+    <input type="submit" value="Create Density-Coverage plot" id="info-button"/>
+  </div>
+  {% endblock %}
