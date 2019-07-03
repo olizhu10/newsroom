@@ -17,6 +17,7 @@ import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 from tqdm import tqdm
+import CW
 
 
 def average(window1, window2, window3, w1length, w2length, w3length, identifier):
@@ -237,12 +238,13 @@ def test_cluster():
         windows = file.read()
     identifier = get_identifier(True)
 
-    ind = 6907
+    ind = 2
     w2 = windows[ind-2]
     w3 = windows[ind-1]
     w2length = len(w2)
     w3length = len(w3)
-    while ind < 6912:
+    pbar = tqdm(total=len(windows), desc='clustering', initial=2)
+    while ind < len(windows):
         w1 = w2
         w2 = w3
         w3 = windows[ind]
@@ -252,7 +254,7 @@ def test_cluster():
         if(len(w1) == 0):
             ind+=1
             pbar.update(1)
-            continue;
+            continue
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
@@ -286,6 +288,9 @@ def test_cluster():
             pp = pprint.PrettyPrinter()
             pp.pprint(dict[key])
         ind += 1
+        pbar.update(1)
+
+    pbar.close()
 
 if __name__ == '__main__':
     cluster()

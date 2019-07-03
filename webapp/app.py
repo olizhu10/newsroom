@@ -28,17 +28,5 @@ def send_cluster():
 def send_cluster():
     socketio.emit('article cluster retrieved', cluster)
 
-@app.route('/summary', methods=['POST', 'GET'])
-def get_summary():
-    if request.method == 'POST':
-        index = int(request.form['summary-submit'])
-        f = request.form
-        for key in f.keys():
-            for value in f.getlist(key):
-                print(key,":",value)
-        print(cluster)
-        text = cluster[index]
-    return render_template('summary.html', cluster=cluster, summary=text, article=text)
-
 if __name__ == '__main__':
     socketio.run(app, debug=True)
