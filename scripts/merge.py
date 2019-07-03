@@ -20,16 +20,16 @@ from tqdm import tqdm
 import CW
 
 
-def average(window1, window2, window3, identifier):
+def average(window1, window2, window3, w1length, w2length, w3length, identifier):
     totalWords = 1780255
     dataList = []
     rowList = []
     colList = []
     average_single_window(window1, identifier, rowList, colList, dataList, 0)
-    average_single_window(window2, identifier, rowList, colList, dataList, len(window1))
-    average_single_window(window3, identifier, rowList, colList, dataList, len(window1)+len(window2))
+    average_single_window(window2, identifier, rowList, colList, dataList, w1length)
+    average_single_window(window3, identifier, rowList, colList, dataList, w1length+w2length)
 
-    return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=((len(window1)+len(window2)+len(window3)), totalWords) )
+    return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=((w1length+w2length+w3length), totalWords) )
 
 def average_single_window(window, identifier, rowList, colList, dataList, startRow):
     for key in window:
@@ -77,34 +77,30 @@ def cluster():
             ind+=1
             pbar.update(1)
             continue;
-        matrix = average(w1, w2, w3, identifier)
+        matrix = average(w1, w2, w3, w1length, w2length, w3length, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=0.4, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.22, min_samples=2).fit(matrix)
         labels = db.labels_
-        count = 0
         dict = {}
         for x, label in enumerate(labels, start = 0):
-            if x+count < w1length:
-                if not(str(x+count) in w1):
-                    count += 1
+            if x < w1length:
+                if not(str(x) in w1):
                     continue
                 if str(label) in dict:
-                    dict[str(label)].append(w1[str(x+count)])
+                    dict[str(label)].append(w1[str(x)])
                 else:
-                    dict[str(label)] = [w1[str(x+count)]]
-            elif x+count >= w1length and x+count <w1length + w2length:
-                if not(str(x+count-w1length) in w2):
-                    count += 1
+                    dict[str(label)] = [w1[str(x)]]
+            elif x >= w1length and x <w1length + w2length:
+                if not(str(x-w1length) in w2):
                     continue
-                if str(label) in dict:
-                    dict[str(label)].append(w2.pop(str(x+count-w1length)))
+                if str(label) in dict and label >= 0:
+                    dict[str(label)].append(w2.pop(str(x-w1length)))
             else:
-                if not(str(x+count-w1length-w2length) in w3):
-                    count += 1
+                if not(str(x-w1length-w2length) in w3):
                     continue
-                if str(label) in dict:
-                    dict[str(label)].append(w3.pop(str(x+count-w1length-w2length)))
+                if str(label) in dict and label >= 0:
+                    dict[str(label)].append(w3.pop(str(x-w1length-w2length)))
         group(dict)
         ind += 1
         pbar.update(1)
@@ -181,7 +177,11 @@ def sample_cluster():
                     continue
                 if str(label) in dict:
                     dict[str(label)].append(w3.pop(str(x+count-w1length-w2length)))
-        group(dict)
+        for key in dict:
+            print(str(ind)+' cluster: '+key)
+            pp = pprint.PrettyPrinter()
+            pp.pprint(dict[key])
+        #group(dict)
         ind += 1
         pbar.update(1)
 
