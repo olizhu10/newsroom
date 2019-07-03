@@ -5,6 +5,8 @@ import sqlite3
 import database as db
 from fragments import Fragments
 import os
+from metrics import cdplot, complot
+from ASData import ASData
 
 app = Flask(__name__, template_folder='templates')
 socketio = SocketIO(app)
@@ -46,30 +48,38 @@ def send_info(json):
     except:
         pass
 
-@socketio.on('create plot')
-def create_plot():
-    colors = ['red','blue','pink','yellow','black','orange','purple','green','cyan',
-    'magenta','grey']
-    plt.title(event)
-    plt.xlabel('coverage')
-    plt.ylabel('density')
+@socketio.on('create cd plot')
+def cd_plot():
+    print('cd pressed')
+    cdplot(create_matrix())
 
-    coverages = []
-    densities = []
-    for x in range(len(cluster)):
-        title = cluster[x][2]
-    
-    for x in range(len(matrix)):
-        coverages = []
-        densities = []
-        title = matrix[x][0].getTitle()[:20]
-        for obj in matrix[x]:
-            if obj.getMatch() == True:
-                coverages.append(obj.getCoverage())
-                densities.append(obj.getDensity())
-        plt.scatter(coverages, densities, marker = 'o', c=colors[x], label=title, alpha=0.6)
-    plt.legend()
-    plt.savefig('../events/data/'+event+'.png')
-    plt.show()
+@socketio.on('create com plot')
+def com_plot():
+    print('com pressed')
+    complot(create_matrix())
+
+def create_matrix():
+    articles = []
+    summaries = []
+    for article in cluster:
+        articles.append(article)
+        summaries.append(article[1])
+
+    matrix = []
+    num = 0
+    for article in articles:
+        text = article[0]
+        title = article[2]
+        entries = []
+        for index in range(len(summaries)):
+            summary = summaries[index]
+            fragments = Fragments(summary, text)
+            obj = ASData(article, summary, title, True, fragments.coverage(),
+                fragments.density(), fragments.compression())
+            entries.append(obj)
+        matrix.append(entries)
+        num += 1
+    return matrix
+
 if __name__ == '__main__':
     socketio.run(app, debug=True)

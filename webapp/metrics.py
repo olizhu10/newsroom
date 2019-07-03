@@ -102,7 +102,6 @@ def cdplot(matrix):
 
     colors = ['red','blue','pink','yellow','black','orange','purple','green','cyan',
     'magenta','grey']
-    plt.title(event)
     plt.xlabel('coverage')
     plt.ylabel('density')
     for x in range(len(matrix)):
@@ -122,7 +121,6 @@ def complot(matrix):
 
     colors = ['red','blue','pink','yellow','black','orange','purple','green','cyan',
     'magenta','grey']
-    plt.title(event)
     plt.xlabel('article')
     plt.ylabel('compression')
     for x in range(len(matrix)):
@@ -137,4 +135,4 @@ def complot(matrix):
 
 if __name__ == '__main__':
     event = input('event: ')
-    complot(data_matrix()
+    complot(data_matrix(event))

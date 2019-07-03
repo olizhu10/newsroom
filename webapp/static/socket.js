@@ -3,20 +3,26 @@ var cluster;
 var summary;
 var article;
 
-$(document).on('submit', 'form#select-form', function(e) {
+$(document).on('click', 'form#select-form', function(e) {
   e.preventDefault();
   socket.emit('send cluster');
 });
 
-$(document).on('submit', 'input#input-button', function(e){
+$(document).on('click', '#cd-button', function(e){
   e.preventDefault();
-  json = {'summary':summary,
-          'article':article}
-  socket.emit('create plot', json)
+  console.log('creating cd')
+  socket.emit('create cd plot')
+});
+
+$(document).on('click', '#com-button', function(e){
+  e.preventDefault();
+  console.log('creating com')
+  socket.emit('create com plot')
 });
 
 socket.on('cluster retrieved', function(msg) {
   cluster = msg;
+  console.log(cluster);
   show_summary(cluster);
   show_article(cluster);
   if (summary===undefined || article===undefined) {}
