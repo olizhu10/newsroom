@@ -5,7 +5,7 @@ Setup Instructions
 ```sh
 pip install -r requirements.txt
 ```
-3. Run the app
+3. Run the server
 ```sh
 python3 app.py
 ```
