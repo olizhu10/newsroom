@@ -1,7 +1,7 @@
 Setup Instructions
 ==================
 1. Navigate into the webapp directory
-2. Create a virtual environment instuctions <link href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">here</link>
+2. Create a virtual environment, instuctions [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
 3. Install packages
 ```sh
 pip install -r requirements.txt
