@@ -1,6 +1,7 @@
 import jsonl
 import sklearn
 import numpy as np
+import pprint
 import sys
 from enum import Enum
 from tfidf_calc import get_identifier
@@ -31,7 +32,7 @@ def average(window1, window2, window3, identifier):
     return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=((len(window1)+len(window2)+len(window3)), totalWords) )
 
 def average_single_window(window, identifier, rowList, colList, dataList, startRow):
-    for ind, key in enumerate(window, start = startRow):
+    for key in window:
         matrix = get_tfidf(window[key], identifier)
         rows = np.zeros(len(window[key]))
         cols = range(len(window[key]))
@@ -40,7 +41,7 @@ def average_single_window(window, identifier, rowList, colList, dataList, startR
         for val, col in zip(averageArray.data, averageArray.indices):
             dataList.append(val)
             colList.append(col)
-            rowList.append(ind)
+            rowList.append(startRow+int(key))
     return
 
 def trash():
@@ -79,7 +80,7 @@ def cluster():
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=0.8, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.4, min_samples=2).fit(matrix)
         labels = db.labels_
         count = 0
         dict = {}
@@ -186,7 +187,53 @@ def sample_cluster():
 
     pbar.close()
 
-def cluster():
+
+def testing():
+    with jsonl.open('../clustering/clusters.jsonl') as file:
+        windows = file.read()
+    identifier = get_identifier(True)
+
+    w1 = windows[6907]
+    w2 = windows[6908]
+    w3 = windows[6909]
+    w1length = len(w1)
+    w2length = len(w2)
+    w3length = len(w3)
+    matrix = average(w1, w2, w3, identifier)
+    db = DBSCAN(eps=0.7, min_samples=2).fit(matrix)
+    labels = db.labels_
+
+    count = 0
+    dict = {}
+    for x, label in enumerate(labels, start = 0):
+        if x+count < w1length:
+            if not(str(x+count) in w1):
+                count += 1
+                continue
+            if str(label) in dict:
+                dict[str(label)].append(w1[str(x+count)])
+            else:
+                dict[str(label)] = [w1[str(x+count)]]
+        elif x+count >= w1length and x+count <w1length + w2length:
+            if not(str(x+count-w1length) in w2):
+                count += 1
+                continue
+            if str(label) in dict:
+                dict[str(label)].append(w2.pop(str(x+count-w1length)))
+        else:
+            if not(str(x+count-w1length-w2length) in w3):
+                count += 1
+                continue
+            if str(label) in dict:
+                dict[str(label)].append(w3.pop(str(x+count-w1length-w2length)))
+
+    for key in dict:
+        print('cluster: '+key)
+        pp = pprint.PrettyPrinter()
+        pp.pprint(dict[key])
+
+
+def test_cluster():
     with jsonl.open('../clustering/clusters.jsonl') as file:
         windows = file.read()
     identifier = get_identifier(True)
@@ -211,7 +258,7 @@ def cluster():
         matrix = average(w1, w2, w3, identifier)
         if matrix.shape[0] == 0:
             continue
-        db = DBSCAN(eps=0.8, min_samples=2).fit(matrix)
+        db = DBSCAN(eps=0.5, min_samples=2).fit(matrix)
         labels = db.labels_
         count = 0
         dict = {}
@@ -236,7 +283,10 @@ def cluster():
                     continue
                 if str(label) in dict:
                     dict[str(label)].append(w3.pop(str(x+count-w1length-w2length)))
-        group(dict)
+        for key in dict:
+            print(str(ind)+' cluster: '+key)
+            pp = pprint.PrettyPrinter()
+            pp.pprint(dict[key])
         ind += 1
         pbar.update(1)
 
