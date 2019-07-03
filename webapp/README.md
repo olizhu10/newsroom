@@ -1,12 +1,13 @@
 Setup Instructions
 ==================
 1. Navigate into the webapp directory
-2. Install packages
+2. Create a virtual environment, instuctions [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+3. Install packages
 ```sh
 pip install -r requirements.txt
 ```
-3. Run the server
+4. Run the server
 ```sh
 python3 app.py
 ```
-4. The app should be running on localhost:5000.
+5. The app should be running on localhost:5000.
