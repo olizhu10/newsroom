@@ -7,6 +7,7 @@ from fragments import Fragments
 import os
 from metrics import cdplot, complot
 from ASData import ASData
+import random
 
 app = Flask(__name__, template_folder='templates')
 socketio = SocketIO(app)
@@ -27,7 +28,17 @@ def get_cluster():
         cluster_id = request.form['cluster']
         global cluster
         cluster = db.get_articles(cluster_id)
-        return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'))
+        return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+            val=cluster_id)
+
+@app.route('/rand-cluster', methods=['POST','GET'])
+def get_rand_cluster():
+    if request.method == 'POST':
+        cluster_id = random.randint(0,15741)
+        global cluster
+        cluster = db.get_articles(cluster_id)
+        return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+            val=cluster_id)
 
 @socketio.on('send cluster')
 def send_summary_cluster():

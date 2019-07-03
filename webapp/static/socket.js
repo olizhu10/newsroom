@@ -3,18 +3,18 @@ var cluster;
 var summary;
 var article;
 
-$(document).on('click', 'form#select-form', function(e) {
+$(document).on('submit', 'form#select-form', function(e) {
   e.preventDefault();
   socket.emit('send cluster');
 });
 
-$(document).on('click', '#cd-button', function(e){
+$(document).on('click', '#cd-button', function(e) {
   e.preventDefault();
   console.log('creating cd')
   socket.emit('create cd plot')
 });
 
-$(document).on('click', '#com-button', function(e){
+$(document).on('click', '#com-button', function(e) {
   e.preventDefault();
   console.log('creating com')
   socket.emit('create com plot')

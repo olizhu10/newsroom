@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block cluster_input %}
+Cluster index: <input type="text" name="cluster" value={{val}} />
+{% endblock %}
 {% block buttons %}
 <div id= "buttons">
   <form id="select-form">
@@ -40,8 +43,10 @@
     <p id="density">No summmary or article selected.</p>
     <p id="coverage"></p>
     <p id="compression"></p>
+    <!--
     <input type="submit" value="Create Coverage-Density plot" id="cd-button"/>
     <br>
     <input type="submit" value="Create Compression plot" id="com-button"/>
+    -->
   </div>
   {% endblock %}

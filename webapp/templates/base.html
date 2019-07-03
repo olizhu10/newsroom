@@ -13,8 +13,13 @@
       <div id="cluster-select">
         <p class="prompt">Please enter the cluster you'd like to analyze.</p>
         <form id="cluster" action="/cluster" method="POST">
+          {% block cluster_input %}
           Cluster index: <input type="text" name="cluster"/>
+          {% endblock %}
           <input type="submit" value="Submit" id="cluster-submit"/>
+        </form>
+        <form action="/rand-cluster" method="POST">
+          <input type="submit" value="Generate random cluster!" id="random-cluster"/>
         </form>
       </div>
       {% endblock %}
