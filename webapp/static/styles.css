@@ -16,6 +16,7 @@
   left: 10px;
   top: 10px;
   margin: 5px;
+  width: 25vw;
 }
 
 #info {
@@ -23,6 +24,7 @@
   padding: 10px;
   margin: 5px;
   left: 10px;
+  width: 25vw;
 }
 
 .prompt {

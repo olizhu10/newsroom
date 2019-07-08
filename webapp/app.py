@@ -75,11 +75,12 @@ def send_info(json):
     try:
         summary = json['summary']
         article = json['article']
-        print('working'+str(json))
+        print(json)
         fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
         json = {'density': fragments.density(),
                 'coverage': fragments.coverage(),
-                'compression': fragments.compression()}
+                'compression': fragments.compression(),
+                'fragments': str(fragments.strings())}
         socketio.emit('info sent', json)
     except:
         pass

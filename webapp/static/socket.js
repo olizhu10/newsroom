@@ -5,7 +5,6 @@ var article;
 
 $(document).on('submit', 'form#select-form', function(e) {
   e.preventDefault();
-  console.log('hi')
   socket.emit('send cluster');
 });
 
@@ -38,8 +37,9 @@ socket.on('info sent', function(json) {
   let density = json['density'];
   let coverage = json['coverage'];
   let compression = json['compression']
+  let fragments = json['fragments']
 
-  update_info(density, coverage, compression);
+  update_info(density, coverage, compression, fragments);
 })
 
 function show_summary(cluster) {
@@ -56,12 +56,14 @@ function show_article(cluster) {
   article_text.innerHTML = cluster[index][0];
 }
 
-function update_info(density, coverage, compression) {
+function update_info(density, coverage, compression, fragments) {
   var pcov = document.getElementById('coverage')
   var pdens = document.getElementById('density')
   var pcomp = document.getElementById('compression')
+  var pfrag = document.getElementById('fragments')
 
   pcov.innerHTML = "Coverage: "+coverage;
   pdens.innerHTML = "Density: "+density;
   pcomp.innerHTML = "Compression: "+compression;
+  pfrag.innerHTML = "Fragments: "+fragments;
 }
