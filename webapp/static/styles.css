@@ -6,7 +6,8 @@
   padding: 10px;
   margin: 5px;
   width: 70vw;
-
+  height: 92vh;
+  overflow: auto;
 }
 
 #selection {
