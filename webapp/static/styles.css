@@ -25,6 +25,7 @@
   margin: 5px;
   left: 10px;
   width: 25vw;
+  overflow: auto;
 }
 
 .prompt {

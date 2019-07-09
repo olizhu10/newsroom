@@ -5,10 +5,10 @@ import sqlite3
 import database as db
 from fragments import Fragments
 import os
-from metrics import cdplot, complot
-from ASData import ASData
+from metrics import cdplot, complot, create_matrix
 import random
 import io
+import base64
 
 app = Flask(__name__, template_folder='templates')
 socketio = SocketIO(app)
@@ -40,30 +40,29 @@ def get_rand_cluster():
         return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
             val=cluster_id)
 
-@app.route('/cd_plot')
-def cd_plot():
-    global cluster
-    plot = cdplot(create_matrix(cluster))
-    img = io.BytesIO()
-    plot.savefig(img)
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
-
 @app.route('/plots/cd', methods=['POST'])
 def show_cdplot():
-    return render_template('cdplot.html')
-
-@app.route('/com_plot')
-def com_plot():
-    plot = complot(create_matrix(cluster))
-    img = io.BytesIO()
-    plot.savefig(img)
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
+    if request.method == 'POST':
+        global cluster
+        plot = cdplot(create_matrix(cluster))
+        img = io.BytesIO()
+        plot.savefig(img)
+        img.seek(0)
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        plot.clf()
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
 @app.route('/plots/com', methods=['POST'])
 def show_complot():
-    return render_template('complot.html')
+    if request.method == 'POST':
+        global cluster
+        plot = complot(create_matrix(cluster))
+        img = io.BytesIO()
+        plot.savefig(img)
+        img.seek(0)
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        plot.clf()
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
 @socketio.on('send cluster')
 def send_cluster():
@@ -84,29 +83,6 @@ def send_info(json):
         socketio.emit('info sent', json)
     except:
         pass
-
-def create_matrix(cluster):
-    articles = []
-    summaries = []
-    for article in cluster:
-        articles.append(article)
-        summaries.append(article[1])
-
-    matrix = []
-    num = 0
-    for article in articles:
-        text = article[0]
-        title = article[2]
-        entries = []
-        for index in range(len(summaries)):
-            summary = summaries[index]
-            fragments = Fragments(summary, text)
-            obj = ASData(article, summary, title, True, fragments.coverage(),
-                fragments.density(), fragments.compression())
-            entries.append(obj)
-        matrix.append(entries)
-        num += 1
-    return matrix
 
 if __name__ == '__main__':
     socketio.run(app, host = '0.0.0.0', port = 5000)
