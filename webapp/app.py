@@ -34,7 +34,7 @@ def get_cluster():
 @app.route('/rand-cluster', methods=['POST','GET'])
 def get_rand_cluster():
     if request.method == 'POST':
-        cluster_id = random.randint(0,15741)
+        cluster_id = random.randint(0,15261)
         global cluster
         cluster = db.get_articles(cluster_id)
         return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
@@ -109,5 +109,5 @@ def create_matrix(cluster):
     return matrix
 
 if __name__ == '__main__':
-    #socketio.run(app, host = '128.84.84.73', port = 5000)
-    socketio.run(app, debug=True)
+    socketio.run(app, host = '0.0.0.0', port = 5000)
+    #socketio.run(app, debug=True)
