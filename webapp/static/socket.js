@@ -8,7 +8,7 @@ $(document).on('submit', 'form#select-form', function(e) {
   socket.emit('send cluster');
 });
 
-$(document).on('click', '#cd-button', function(e) {
+/*$(document).on('click', '#cd-button', function(e) {
   e.preventDefault();
   console.log('creating cd')
   socket.emit('create cd plot')
@@ -19,7 +19,7 @@ $(document).on('click', '#com-button', function(e) {
   console.log('creating com')
   socket.emit('create com plot')
 });
-
+*/
 socket.on('cluster retrieved', function(msg) {
   cluster = msg;
   console.log(cluster);
@@ -29,7 +29,6 @@ socket.on('cluster retrieved', function(msg) {
   else {
     json = {'summary':summary,
             'article':article}
-    console.log(json)
     socket.emit('send info', json);
   }
 });
@@ -38,8 +37,9 @@ socket.on('info sent', function(json) {
   let density = json['density'];
   let coverage = json['coverage'];
   let compression = json['compression']
+  let fragments = json['fragments']
 
-  update_info(density, coverage, compression);
+  update_info(density, coverage, compression, fragments);
 })
 
 function show_summary(cluster) {
@@ -56,12 +56,14 @@ function show_article(cluster) {
   article_text.innerHTML = cluster[index][0];
 }
 
-function update_info(density, coverage, compression) {
+function update_info(density, coverage, compression, fragments) {
   var pcov = document.getElementById('coverage')
   var pdens = document.getElementById('density')
   var pcomp = document.getElementById('compression')
+  var pfrag = document.getElementById('fragments')
 
   pcov.innerHTML = "Coverage: "+coverage;
   pdens.innerHTML = "Density: "+density;
   pcomp.innerHTML = "Compression: "+compression;
+  pfrag.innerHTML = "Fragments: "+fragments;
 }

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from flask_socketio import SocketIO
 import eventlet
 import sqlite3
@@ -8,10 +8,10 @@ import os
 from metrics import cdplot, complot
 from ASData import ASData
 import random
+import io
 
 app = Flask(__name__, template_folder='templates')
 socketio = SocketIO(app)
-cluster = []
 
 @app.route('/')
 def index():
@@ -40,8 +40,34 @@ def get_rand_cluster():
         return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
             val=cluster_id)
 
+@app.route('/cd_plot')
+def cd_plot():
+    global cluster
+    plot = cdplot(create_matrix(cluster))
+    img = io.BytesIO()
+    plot.savefig(img)
+    img.seek(0)
+    return send_file(img, mimetype='image/png')
+
+@app.route('/plots/cd', methods=['POST'])
+def show_cdplot():
+    return render_template('cdplot.html')
+
+@app.route('/com_plot')
+def com_plot():
+    plot = complot(create_matrix(cluster))
+    img = io.BytesIO()
+    plot.savefig(img)
+    img.seek(0)
+    return send_file(img, mimetype='image/png')
+
+@app.route('/plots/com', methods=['POST'])
+def show_complot():
+    return render_template('complot.html')
+
 @socketio.on('send cluster')
-def send_summary_cluster():
+def send_cluster():
+    global cluster
     socketio.emit('cluster retrieved', cluster)
 
 @socketio.on('send info')
@@ -50,26 +76,16 @@ def send_info(json):
         summary = json['summary']
         article = json['article']
         print(json)
-        global cluster
         fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
         json = {'density': fragments.density(),
                 'coverage': fragments.coverage(),
-                'compression': fragments.compression()}
+                'compression': fragments.compression(),
+                'fragments': str(fragments.strings())}
         socketio.emit('info sent', json)
     except:
         pass
 
-@socketio.on('create cd plot')
-def cd_plot():
-    print('cd pressed')
-    cdplot(create_matrix())
-
-@socketio.on('create com plot')
-def com_plot():
-    print('com pressed')
-    complot(create_matrix())
-
-def create_matrix():
+def create_matrix(cluster):
     articles = []
     summaries = []
     for article in cluster:
