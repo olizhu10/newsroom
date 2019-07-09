@@ -13,6 +13,7 @@ def plot(array, title):
     s = ('total number of clusters: '+str(len(total_summaries))+
         '\nnumber of valid clusters: '+str(good_clusters)+
         '\naverage number of summaries per cluster: '+str(avg_num_summaries)+
+        '\nnumber of removed clusters: '+str(removed)+
         '\nmean: '+str(avg_match_percent)+
         '\nmedian: '+str(np.median(match_percents))+
         '\nstd dev: '+str(np.std(match_percents)))
@@ -28,11 +29,14 @@ if __name__ == '__main__':
         total_summaries = []
         match_percents = []
         good_clusters = 0
+        removed = 0
 
         for row in reader:
             total_summaries.append(row['num_summaries'])
             if row['quit'] != 'Y':
                 match_percents.append(row['match_percents'])
+            else:
+                removed += 1
             if row['clustered_yn'] == 'yes':
                 good_clusters += 1
         match_percents = np.array(match_percents).astype(np.float)
