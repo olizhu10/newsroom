@@ -93,4 +93,5 @@ def create_matrix():
     return matrix
 
 if __name__ == '__main__':
+    #socketio.run(app, host = '128.84.84.73', port = 5000)
     socketio.run(app, debug=True)
