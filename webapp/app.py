@@ -13,7 +13,7 @@ import base64
 
 app = Flask(__name__, template_folder='templates')
 socketio = SocketIO(app)
-
+clusters = {}
 @app.route('/')
 def index():
     return render_template('base.html', last_updated=dir_last_updated('static'))
@@ -27,9 +27,8 @@ def dir_last_updated(folder):
 def get_cluster():
     if request.method == 'POST':
         cluster_id = request.form['cluster']
-        global cluster
-        cluster = db.get_articles(cluster_id)
-        return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+        clusters[request.remote_addr] = db.get_articles(cluster_id)
+        return render_template('cluster.html', cluster=clusters[request.remote_addr], last_updated=dir_last_updated('static'),
             val=cluster_id)
 """
 @app.route('/search', methods=['POST'])
@@ -49,16 +48,14 @@ def get_cluster(cluster_id):
 def get_rand_cluster():
     if request.method == 'POST':
         cluster_id = random.randint(0,12986) #old 15261
-        global cluster
-        cluster = db.get_articles(cluster_id)
-        return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+        clusters[request.remote_addr] = db.get_articles(cluster_id)
+        return render_template('cluster.html', cluster=clusters[request.remote_addr], last_updated=dir_last_updated('static'),
             val=cluster_id)
 
 @app.route('/plots/cd', methods=['POST'])
 def show_cdplot():
     if request.method == 'POST':
-        global cluster
-        plot = cdplot(create_matrix(cluster))
+        plot = cdplot(create_matrix(clusters[request.remote_addr]))
         img = io.BytesIO()
         plot.savefig(img)
         img.seek(0)
@@ -69,8 +66,7 @@ def show_cdplot():
 @app.route('/plots/com', methods=['POST'])
 def show_complot():
     if request.method == 'POST':
-        global cluster
-        plot = complot(create_matrix(cluster))
+        plot = complot(create_matrix(clusters[request.remote_addr]))
         img = io.BytesIO()
         plot.savefig(img)
         img.seek(0)
@@ -80,8 +76,7 @@ def show_complot():
 
 @socketio.on('send cluster')
 def send_cluster():
-    global cluster
-    socketio.emit('cluster retrieved', cluster)
+    socketio.emit('cluster retrieved', clusters[request.remote_addr])
 
 @socketio.on('send info')
 def send_info(json):
@@ -89,7 +84,7 @@ def send_info(json):
         summary = json['summary']
         article = json['article']
         print(json)
-        fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
+        fragments = Fragments(clusters[request.remote_addr][int(summary)][1], clusters[request.remote_addr][int(article)][0])
         json = {'density': fragments.density(),
                 'coverage': fragments.coverage(),
                 'compression': fragments.compression(),
