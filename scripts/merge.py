@@ -17,7 +17,6 @@ import gensim.downloader as api
 from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 from tqdm import tqdm
-import CW
 
 
 def average(window1, window2, window3, w1length, w2length, w3length, identifier):
@@ -45,8 +44,9 @@ def average_single_window(window, identifier, rowList, colList, dataList, startR
     return
 
 def cluster():
-    with jsonl.open('../clustering/clusters.jsonl') as file:
+    with jsonl.open('../clustering/clusters_0.9.jsonl') as file:
         windows = file.read()
+        file.close()
     identifier = get_identifier(True)
 
     ind = 2
@@ -97,7 +97,7 @@ def cluster():
     pbar.close()
 
 def group(clusters):
-    fileName = '../clustering/final_clusters.jsonl'
+    fileName = '../clustering/final_clusters_0.9.jsonl'
     with jsonl.open(fileName) as file:
         for key in tqdm(clusters, desc='grouping'):
             if key == '-1':
@@ -105,6 +105,7 @@ def group(clusters):
                     file.appendline(cluster)
             else:
                 file.appendline(merge(clusters[key]))
+    file.close()
 
 def merge(clusters):
     merged_cluster = []

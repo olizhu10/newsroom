@@ -5,10 +5,10 @@ from multiprocessing import Pool
 from threading import Lock
 from tqdm import tqdm
 
-db = sqlite3.connect('database2.db')
+db = sqlite3.connect('database0.9.db')
 c = db.cursor()
 lock = Lock()
-with jsonl.open('../clustering/final_clusters_cleaned.jsonl') as f:
+with jsonl.open('../clustering/final_clusters_0.9_cleaned.jsonl') as f:
     clusters = f.read()
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()

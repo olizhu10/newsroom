@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import Flask, render_template, request, send_file
 from flask_socketio import SocketIO
 import eventlet
@@ -34,7 +35,7 @@ def get_cluster():
 @app.route('/rand-cluster', methods=['POST','GET'])
 def get_rand_cluster():
     if request.method == 'POST':
-        cluster_id = random.randint(0,15261)
+        cluster_id = random.randint(0,12986) #old 15261
         global cluster
         cluster = db.get_articles(cluster_id)
         return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
