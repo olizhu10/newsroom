@@ -53,11 +53,13 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <p id="coverage">Coverage: {{coverage}}</p>
     <p id="compression">Compression: {{compression}}</p>
     <p id="fragments">Fragments: {{fragments}}</p>
-    <form id="cdplot" action="/plots/cd" target="_blank" method="POST">
-      <input type="submit" value="Create Coverage-Density plot" id="cd-button"/>
+    <form id="cdplot" action="/cdplot" target="_blank" method="POST">
+      <input type="hidden" name="cid" value="{{val}}"/>
+      <input type="submit" value="Create Coverage-Density plot" name="cd-button"/>
     </form>
-    <form id="complot" action="/plots/com" target="_blank" method="POST">
-      <input type="submit" value="Create Compression plot" id="com-button"/>
+    <form id="complot" action="/complot" target="_blank" method="POST">
+      <input type="hidden" name="cid" value="{{val}}"/>
+      <input type="submit" value="Create Compression plot" name="com-button"/>
     </form>
 
   </div>

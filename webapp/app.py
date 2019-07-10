@@ -57,6 +57,32 @@ def get_text(cluster_id, summary, article):
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], summary=summary, article=article)
 
+@app.route('/cdplot', methods=['POST'])
+def cd_plot():
+    if request.method == 'POST':
+        cluster_id = request.form['cid']
+        return redirect(url_for('make_plot', type='cd', cluster_id=cluster_id))
+
+@app.route('/complot', methods=['POST'])
+def com_plot():
+    if request.method == 'POST':
+        cluster_id = request.form['cid']
+        return redirect(url_for('make_plot', type='com', cluster_id=cluster_id))
+
+@app.route('/cluster/<int:cluster_id>/<type>', methods=['GET','POST'])
+def make_plot(type, cluster_id):
+    cluster = clusters[request.remote_addr]
+    if type == 'cd':
+        plot = cdplot(create_matrix(cluster))
+    else:
+        plot = complot(create_matrix(cluster))
+    img = io.BytesIO()
+    plot.savefig(img)
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    plot.clf()
+    return '<img src="data:image/png;base64,{}">'.format(plot_url)
+
 @app.route('/plots/cd', methods=['POST'])
 def show_cdplot():
     if request.method == 'POST':
