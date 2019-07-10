@@ -48,7 +48,11 @@ def select():
 
 @app.route('/cluster/<int:cluster_id>/<int:summary>/<int:article>', methods=['POST','GET'])
 def get_text(cluster_id, summary, article):
-    cluster = clusters[request.remote_addr]
+    try:
+        cluster = clusters[request.remote_addr]
+    except:
+        clusters[request.remote_addr] = db.get_articles(cluster_id)
+        cluster = clusters[request.remote_addr]
     summary_text = cluster[summary][1]
     article_text = cluster[article][0]
     json = get_info(summary, article)
@@ -60,7 +64,11 @@ def get_text(cluster_id, summary, article):
 @app.route('/plots/cd', methods=['POST'])
 def show_cdplot():
     if request.method == 'POST':
-        cluster = clusters[request.remote_addr]
+        try:
+            cluster = clusters[request.remote_addr]
+        except:
+            clusters[request.remote_addr] = db.get_articles(cluster_id)
+            cluster = clusters[request.remote_addr]
         plot = cdplot(create_matrix(cluster))
         img = io.BytesIO()
         plot.savefig(img)
@@ -72,7 +80,11 @@ def show_cdplot():
 @app.route('/plots/com', methods=['POST'])
 def show_complot():
     if request.method == 'POST':
-        cluster = clusters[request.remote_addr]
+        try:
+            cluster = clusters[request.remote_addr]
+        except:
+            clusters[request.remote_addr] = db.get_articles(cluster_id)
+            cluster = clusters[request.remote_addr]
         plot = complot(create_matrix(cluster))
         img = io.BytesIO()
         plot.savefig(img)
@@ -83,7 +95,11 @@ def show_complot():
 
 @socketio.on('send cluster')
 def send_cluster():
-    cluster = clusters[request.remote_addr]
+    try:
+        cluster = clusters[request.remote_addr]
+    except:
+        clusters[request.remote_addr] = db.get_articles(cluster_id)
+        cluster = clusters[request.remote_addr]
     socketio.emit('cluster retrieved', cluster)
 
 def get_info(summary, article):
