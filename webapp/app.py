@@ -31,9 +31,8 @@ def search():
 
 @app.route('/cluster/<int:cluster_id>', methods=['POST','GET'])
 def get_cluster(cluster_id):
-    global cluster
-    cluster = db.get_articles(cluster_id)
-    return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+    clusters[request.remote_addr] = db.get_articles(cluster_id)
+    return render_template('cluster.html', cluster=clusters[request.remote_addr], last_updated=dir_last_updated('static'),
         val=cluster_id)
 
 @app.route('/rand-cluster', methods=['POST','GET'])
