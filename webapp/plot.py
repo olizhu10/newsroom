@@ -58,9 +58,8 @@ def cdplot(cluster):
         densities = []
         title = matrix[x][0].getTitle()[:20]
         for obj in matrix[x]:
-            if obj.getMatch() == True:
-                coverages.append(obj.getCoverage())
-                densities.append(obj.getDensity())
+            coverages.append(obj.getCoverage())
+            densities.append(obj.getDensity())
         plt.scatter(coverages, densities, marker = 'o', c=COLORS[x], label=title, alpha=0.6)
     plt.legend()
     return plt
@@ -75,8 +74,7 @@ def complot(cluster):
         compressions = []
         title = matrix[x][0].getTitle()[:20]
         for obj in matrix[x]:
-            if obj.getMatch() == True:
-                compressions.append(obj.getCompression())
+            compressions.append(obj.getCompression())
         plt.scatter([x]*len(compressions), compressions, marker='o', c=COLORS[x], label=title, alpha=0.6)
     plt.legend()
     return plt
