@@ -99,36 +99,8 @@ def cluster(matrix, e):
 
     return db
 
-def plot(db, matrix):
-    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-    core_samples_mask[db.core_sample_indices_] = True
-    labels = db.labels_
-
-    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-    n_noise_ = list(labels).count(-1)
-
-    unique_labels = set(labels)
-    colors = [plt.cm.Spectral(each)
-              for each in np.linspace(0, 1, len(unique_labels))]
-    for k, col in zip(unique_labels, colors):
-        if k == -1:
-            # Black used for noise.
-            col = [0, 0, 0, 1]
-
-        class_member_mask = (labels == k)
-
-        xy = matrix[class_member_mask & core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
-                 markeredgecolor='k', markersize=14)
-
-        xy = matrix[class_member_mask & ~core_samples_mask]
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
-                 markeredgecolor='k', markersize=6)
-
-    plt.title('Estimated number of clusters: %d' % n_clusters_)
-
 def group(labels, archives):
-    fileName = '../clustering/sample_clusters2.jsonl'
+    fileName = '../clustering/clusters_0.9.jsonl'
     dict = {}
     with jsonl.open(fileName) as file:
         for x in range(len(labels)):
@@ -138,6 +110,7 @@ def group(labels, archives):
                 else:
                     dict[str(labels[x])] = [archives[x]]
         file.appendline(dict)
+        file.close()
 
 def print_clusters():
     fileName = '../clustering/clusters.jsonl'
@@ -175,13 +148,14 @@ def cluster_sampling():
         start = update_time(start, 1)
         end = update_time(start, 3)
 
-def main():
+def main(e):
     start = '19980101000000'
     end = update_time(start, 3)
     path = '../dataset_files/train.jsonl.gz'
     print('opening file')
     with jsonl.open(path, gzip=True) as file:
         data = file.read()
+        file.close()
     print('getting identifier')
     identifier = get_identifier(True)
     print('starting clustering')
@@ -195,7 +169,7 @@ def main():
             end = update_time(start, 3)
             count += 1
             continue
-        db = cluster(matrix, 0.93)
+        db = cluster(matrix, e)
         group(db.labels_, archives)
         start = update_time(start, 1)
         end = update_time(start, 3)
@@ -203,4 +177,4 @@ def main():
         print(count)
 
 if __name__ == '__main__':
-    print_clusters()
+    main(0.9)

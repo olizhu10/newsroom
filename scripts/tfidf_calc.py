@@ -12,6 +12,7 @@ import csv
 def run():
     with jsonl.open('../dataset_files/train.jsonl.gz', gzip = True) as file:
         data = file.read()
+        file.close()
     print('beginning preprocessing')
     texts = []
     count = 0
@@ -60,9 +61,11 @@ def get_identifier(file):
     if file == True:
         with open('../clustering/identifier.json', 'r') as file:
             dict = json.load(file)
+        file.close()
     else:
         with open('../clustering/sample_identifier.json', 'r') as file:
             dict = json.load(file)
+        file.close()
 
     return dict
 
