@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request, send_file, redirect, url_for
-from flask_socketio import SocketIO
 import eventlet
 import sqlite3
 import database as db
@@ -12,17 +11,11 @@ import io
 import base64
 
 app = Flask(__name__, template_folder='templates')
-socketio = SocketIO(app)
 clusters = {}
 
 @app.route('/')
 def index():
     return render_template('base.html', last_updated=dir_last_updated('static'))
-
-def dir_last_updated(folder):
-    return str(max(os.path.getmtime(os.path.join(root_path, f))
-               for root_path, dirs, files in os.walk(folder)
-               for f in files))
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -93,14 +86,10 @@ def make_plot(type, cluster_id):
     plot.clf()
     return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
-@socketio.on('send cluster')
-def send_cluster():
-    try:
-        cluster = clusters[request.remote_addr]
-    except:
-        clusters[request.remote_addr] = db.get_articles(cluster_id)
-        cluster = clusters[request.remote_addr]
-    socketio.emit('cluster retrieved', cluster)
+def dir_last_updated(folder):
+    return str(max(os.path.getmtime(os.path.join(root_path, f))
+               for root_path, dirs, files in os.walk(folder)
+               for f in files))
 
 def get_info(summary, article):
     try:
@@ -115,4 +104,4 @@ def get_info(summary, article):
         pass
 
 if __name__ == '__main__':
-    socketio.run(app, host = '0.0.0.0', port = 5000, debug=True)
+    app.run(host = '0.0.0.0', port = 5000, debug=True)

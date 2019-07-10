@@ -1,6 +1,5 @@
 import sys
 import jsonl
-from ASData import ASData
 from fragments import Fragments
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -81,6 +80,49 @@ def complot(cluster):
         plt.scatter([x]*len(compressions), compressions, marker='o', c=COLORS[x], label=title, alpha=0.6)
     plt.legend()
     return plt
+
+class ASData(object):
+    """A class representing data for an article-summary analysis
+
+    INSTANCE ATTRIBUTES:
+        _match [bool]: whether or not the summary is a match for the article
+        _data [str]: name of jsonl file with articles
+        _coverage [float]: the coverage for the article-summary pair
+        _density [float]: the density for the article-summary pair
+        _compression [float]: the compression for the article-summary pair
+        _title [str]: the title of the article
+        """
+
+    def __init__(self, article, summary, title, match, coverage = None, density = None, compression = None):
+        self._match = match
+        self._article = article
+        self._summary = summary
+        self._title = title
+        if match == True:
+            self._coverage = coverage
+            self._density = density
+            self._compression = compression
+
+    def getMatch(self):
+        return self._match
+
+    def getTitle(self):
+        return self._title
+
+    def getCoverage(self):
+        return self._coverage
+
+    def getDensity(self):
+        return self._density
+
+    def getCompression(self):
+        return self._compression
+
+    def __repr__(self):
+        if self._match == True:
+            return "Coverage: "+str(self._coverage)+", Density: "+str(self._density)+", Compression: "+str(self._compression)+'\n'
+        else:
+            return "Not a match\n"
 
 if __name__ == '__main__':
     colors()
