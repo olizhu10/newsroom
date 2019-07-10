@@ -48,6 +48,7 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
 
   {% block info %}
   <div id="info">
+    {% if summary or (summary == 0) %}
     <strong>Information for summary {{summary}}, article {{article}}:</strong>
     <p id="density">Density: {{density}}</p>
     <p id="coverage">Coverage: {{coverage}}</p>
@@ -61,6 +62,6 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Create Compression plot" name="com-button"/>
     </form>
-
+    {% endif %}
   </div>
   {% endblock %}

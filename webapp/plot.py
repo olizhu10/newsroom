@@ -6,6 +6,24 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
 
+def get_colors():
+    all_colors = list(mcolors.BASE_COLORS)
+    all_colors.extend(mcolors.TABLEAU_COLORS)
+    all_colors.extend(mcolors.CSS4_COLORS)
+
+    bad_colors = ['w', 'whitesmoke', 'white', 'snow', 'mistyrose', 'seashell',
+        'linen', 'oldlace', 'floralwhite', 'cornsilk', 'lemonchiffon', 'ivory',
+        'beige', 'lightyellow', 'lightgoldenyellow', 'honeydew', 'mintcream', 'azure',
+        'lightcyan', 'aliceblue', 'ghostwhite', 'lavenderbush']
+
+    good_colors = []
+    for color in all_colors:
+        if not color in bad_colors:
+            good_colors.append(color)
+    return good_colors
+
+COLORS = get_colors()
+
 def create_matrix(cluster):
     articles = []
     summaries = []
@@ -29,14 +47,11 @@ def create_matrix(cluster):
         num += 1
     return matrix
 
-def cdplot(matrix):
+def cdplot(cluster):
     """Generates a scatter plot showing the relationship between coverage and
     density for the inputted matrix"""
 
-    colors = list(mcolors.BASE_COLORS)
-    colors.extend(mcolors.TABLEAU_COLORS)
-    colors.extend(mcolors.CSS4_COLORS)
-
+    matrix = create_matrix(cluster)
     plt.xlabel('coverage')
     plt.ylabel('density')
     for x in range(len(matrix)):
@@ -47,17 +62,14 @@ def cdplot(matrix):
             if obj.getMatch() == True:
                 coverages.append(obj.getCoverage())
                 densities.append(obj.getDensity())
-        plt.scatter(coverages, densities, marker = 'o', c=colors[x], label=title, alpha=0.6)
+        plt.scatter(coverages, densities, marker = 'o', c=COLORS[x], label=title, alpha=0.6)
     plt.legend()
     return plt
 
-def complot(matrix):
+def complot(cluster):
     """Generates a dot plot for the compression for the inputted matrix"""
 
-    colors = list(mcolors.BASE_COLORS)
-    colors.extend(mcolors.TABLEAU_COLORS)
-    colors.extend(mcolors.CSS4_COLORS)
-
+    matrix = create_matrix(cluster)
     plt.xlabel('article')
     plt.ylabel('compression')
     for x in range(len(matrix)):
@@ -66,6 +78,9 @@ def complot(matrix):
         for obj in matrix[x]:
             if obj.getMatch() == True:
                 compressions.append(obj.getCompression())
-        plt.scatter([x]*len(compressions), compressions, marker='o', c=colors[x], label=title, alpha=0.6)
+        plt.scatter([x]*len(compressions), compressions, marker='o', c=COLORS[x], label=title, alpha=0.6)
     plt.legend()
     return plt
+
+if __name__ == '__main__':
+    colors()

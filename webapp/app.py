@@ -6,7 +6,7 @@ import sqlite3
 import database as db
 from fragments import Fragments
 import os
-from metrics import cdplot, complot, create_matrix
+from plot import cdplot, complot
 import random
 import io
 import base64
@@ -83,47 +83,15 @@ def com_plot():
 def make_plot(type, cluster_id):
     cluster = clusters[request.remote_addr]
     if type == 'cd':
-        plot = cdplot(create_matrix(cluster))
+        plot = cdplot(cluster)
     else:
-        plot = complot(create_matrix(cluster))
+        plot = complot(cluster)
     img = io.BytesIO()
     plot.savefig(img)
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     plot.clf()
     return '<img src="data:image/png;base64,{}">'.format(plot_url)
-
-@app.route('/plots/cd', methods=['POST'])
-def show_cdplot():
-    if request.method == 'POST':
-        try:
-            cluster = clusters[request.remote_addr]
-        except:
-            clusters[request.remote_addr] = db.get_articles(cluster_id)
-            cluster = clusters[request.remote_addr]
-        plot = cdplot(create_matrix(cluster))
-        img = io.BytesIO()
-        plot.savefig(img)
-        img.seek(0)
-        plot_url = base64.b64encode(img.getvalue()).decode()
-        plot.clf()
-        return '<img src="data:image/png;base64,{}">'.format(plot_url)
-
-@app.route('/plots/com', methods=['POST'])
-def show_complot():
-    if request.method == 'POST':
-        try:
-            cluster = clusters[request.remote_addr]
-        except:
-            clusters[request.remote_addr] = db.get_articles(cluster_id)
-            cluster = clusters[request.remote_addr]
-        plot = complot(create_matrix(cluster))
-        img = io.BytesIO()
-        plot.savefig(img)
-        img.seek(0)
-        plot_url = base64.b64encode(img.getvalue()).decode()
-        plot.clf()
-        return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
 @socketio.on('send cluster')
 def send_cluster():
