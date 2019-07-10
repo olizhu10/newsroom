@@ -3,7 +3,14 @@ var cluster;
 var summary;
 var article;
 
-$(document).on('submit', 'form#select-form', function(e) {
+$(document).on('submit', 'form#rand-cluster', function(e) {
+  e.preventDefault();
+  num = Math.floor(Math.random()*12987);
+  $('#cluster-id').attr('value', num);
+  document.getElementById('cluster').submit();
+})
+
+/*$(document).on('submit', 'form#select-form', function(e) {
   e.preventDefault();
   socket.emit('send cluster');
 });
@@ -11,8 +18,8 @@ $(document).on('submit', 'form#select-form', function(e) {
 socket.on('cluster retrieved', function(msg) {
   cluster = msg;
   console.log(cluster);
-  show_summary(cluster);
-  show_article(cluster);
+  //show_summary(cluster);
+  //show_article(cluster);
   if (summary===undefined || article===undefined) {}
   else {
     json = {'summary':summary,
@@ -55,3 +62,4 @@ function update_info(density, coverage, compression, fragments) {
   pcomp.innerHTML = "Compression: "+compression;
   pfrag.innerHTML = "Fragments: "+fragments;
 }
+*/

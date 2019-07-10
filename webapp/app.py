@@ -14,6 +14,7 @@ import base64
 app = Flask(__name__, template_folder='templates')
 socketio = SocketIO(app)
 clusters = {}
+
 @app.route('/')
 def index():
     return render_template('base.html', last_updated=dir_last_updated('static'))
@@ -32,21 +33,35 @@ def search():
 @app.route('/cluster/<int:cluster_id>', methods=['POST','GET'])
 def get_cluster(cluster_id):
     clusters[request.remote_addr] = db.get_articles(cluster_id)
-    return render_template('cluster.html', cluster=clusters[request.remote_addr], last_updated=dir_last_updated('static'),
-        val=cluster_id)
+    cluster = clusters[request.remote_addr]
+    return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+        val=cluster_id, summary_text="No summary selected.", article_text="No article selected.")
 
-@app.route('/rand-cluster', methods=['POST','GET'])
-def get_rand_cluster():
+@app.route('/select', methods=['POST'])
+def select():
     if request.method == 'POST':
-        cluster_id = random.randint(0,12986) #old 15261
-        clusters[request.remote_addr] = db.get_articles(cluster_id)
-        return render_template('cluster.html', cluster=clusters[request.remote_addr], last_updated=dir_last_updated('static'),
-            val=cluster_id)
+        summary = request.form['summary-select']
+        article = request.form['article-select']
+        cluster_id = request.form['cid']
+        return redirect(url_for('get_text', summary=summary, article=article,
+            cluster_id=cluster_id))
+
+@app.route('/cluster/<int:cluster_id>/<int:summary>/<int:article>', methods=['POST','GET'])
+def get_text(cluster_id, summary, article):
+    cluster = clusters[request.remote_addr]
+    summary_text = cluster[summary][1]
+    article_text = cluster[article][0]
+    json = get_info(summary, article)
+    return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+        val=cluster_id, summary_text=summary_text, article_text=article_text,
+        density=json['density'], coverage=json['coverage'], compression=json['compression'],
+        fragments=json['fragments'])
 
 @app.route('/plots/cd', methods=['POST'])
 def show_cdplot():
     if request.method == 'POST':
-        plot = cdplot(create_matrix(clusters[request.remote_addr]))
+        cluster = clusters[request.remote_addr]
+        plot = cdplot(create_matrix(cluster))
         img = io.BytesIO()
         plot.savefig(img)
         img.seek(0)
@@ -57,7 +72,8 @@ def show_cdplot():
 @app.route('/plots/com', methods=['POST'])
 def show_complot():
     if request.method == 'POST':
-        plot = complot(create_matrix(clusters[request.remote_addr]))
+        cluster = clusters[request.remote_addr]
+        plot = complot(create_matrix(cluster))
         img = io.BytesIO()
         plot.savefig(img)
         img.seek(0)
@@ -67,23 +83,20 @@ def show_complot():
 
 @socketio.on('send cluster')
 def send_cluster():
-    socketio.emit('cluster retrieved', clusters[request.remote_addr])
+    cluster = clusters[request.remote_addr]
+    socketio.emit('cluster retrieved', cluster)
 
-@socketio.on('send info')
-def send_info(json):
+def get_info(summary, article):
     try:
-        summary = json['summary']
-        article = json['article']
-        print(json)
-        fragments = Fragments(clusters[request.remote_addr][int(summary)][1], clusters[request.remote_addr][int(article)][0])
+        cluster = clusters[request.remote_addr]
+        fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
         json = {'density': fragments.density(),
                 'coverage': fragments.coverage(),
                 'compression': fragments.compression(),
                 'fragments': str(fragments.strings())}
-        socketio.emit('info sent', json)
+        return json
     except:
         pass
 
 if __name__ == '__main__':
     socketio.run(app, host = '0.0.0.0', port = 5000, debug=True)
-    #socketio.run(app, debug=True)

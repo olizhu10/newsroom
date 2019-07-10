@@ -4,20 +4,21 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
 {% endblock %}
 {% block buttons %}
 <div id= "buttons">
-  <form id="select-form">
+  <form id="select-form" action="/select" method="POST">
     <p class="prompt">Select the summary you wish to display.</p>
-    <select id="summary-select">
+    <select name="summary-select" id="summary-select">
       {% for s in range(cluster|length) %}
         <option value= {{s}}>{{s}}</option>
       {% endfor %}
     </select>
 
     <p class="prompt">Select the article you wish to display.</p>
-    <select id="article-select">
+    <select name="article-select" id="article-select">
       {% for s in range(cluster|length) %}
         <option value= {{s}}>{{s}}</option>
       {% endfor %}
     </select><br>
+    <input type="hidden" name="cid" value="{{val}}"/>
     <input type="submit" value="Submit"/>
   </form>
 </div>
@@ -27,12 +28,12 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
   <div id="texts">
     <div id="summary">
       <h3>Summary:</h3>
-      <p id="summary-text">No summary selected.</p>
+      <p id="summary-text">{{summary_text}}</p>
     </div>
 
     <div id="article">
       <h3>Article:</h3>
-      <p id="article-text">No article selected.</p>
+      <p id="article-text">{{article_text}}</p>
     </div>
   </div>
   {% endblock %}
@@ -40,10 +41,10 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
   {% block info %}
   <div id="info">
     <strong>Information:</strong>
-    <p id="density">No summary or article selected.</p>
-    <p id="coverage"></p>
-    <p id="compression"></p>
-    <p id="fragments"></p>
+    <p id="density">Density: {{density}}</p>
+    <p id="coverage">Coverage: {{coverage}}</p>
+    <p id="compression">Compression: {{compression}}</p>
+    <p id="fragments">Fragments: {{fragments}}</p>
     <form id="cdplot" action="/plots/cd" target="_blank" method="POST">
       <input type="submit" value="Create Coverage-Density plot" id="cd-button"/>
     </form>
