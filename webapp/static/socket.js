@@ -8,18 +8,6 @@ $(document).on('submit', 'form#select-form', function(e) {
   socket.emit('send cluster');
 });
 
-/*$(document).on('click', '#cd-button', function(e) {
-  e.preventDefault();
-  console.log('creating cd')
-  socket.emit('create cd plot')
-});
-
-$(document).on('click', '#com-button', function(e) {
-  e.preventDefault();
-  console.log('creating com')
-  socket.emit('create com plot')
-});
-*/
 socket.on('cluster retrieved', function(msg) {
   cluster = msg;
   console.log(cluster);

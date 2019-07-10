@@ -2,10 +2,10 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot(array, title):
-    print('plotting histogram for '+title)
+def plot(array):
+    print('plotting histogram for match percentages')
     print('close plot to see stats')
-    plt.title(title)
+    plt.title('match percentages')
     plt.xlabel('match percentages')
     plt.ylabel('number of clusters')
     ticks = [0,10,20,30,40,50,60,70,80,90,100]
@@ -19,7 +19,7 @@ def plot(array, title):
         '\nstd dev: '+str(np.std(match_percents)))
     plt.text(-4,7,s)
     plt.hist(array, bins=ticks)
-    plt.savefig(title)
+    plt.savefig('../clustering/match_percentages.png')
     plt.show()
 
 if __name__ == '__main__':
