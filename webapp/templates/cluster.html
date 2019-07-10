@@ -8,14 +8,22 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <p class="prompt">Select the summary you wish to display.</p>
     <select name="summary-select" id="summary-select">
       {% for s in range(cluster|length) %}
-        <option value= {{s}}>{{s}}</option>
+        {% if s == summary %}
+          <option selected="selected" value= {{s}}>{{s}}</option>
+        {% else %}
+          <option value= {{s}}>{{s}}</option>
+        {% endif %}
       {% endfor %}
     </select>
 
     <p class="prompt">Select the article you wish to display.</p>
     <select name="article-select" id="article-select">
       {% for s in range(cluster|length) %}
-        <option value= {{s}}>{{s}}</option>
+        {% if s == article %}
+          <option selected="selected" value= {{s}}>{{s}}</option>
+        {% else %}
+          <option value= {{s}}>{{s}}</option>
+        {% endif %}
       {% endfor %}
     </select><br>
     <input type="hidden" name="cid" value="{{val}}"/>
@@ -40,7 +48,7 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
 
   {% block info %}
   <div id="info">
-    <strong>Information:</strong>
+    <strong>Information for summary {{summary}}, article {{article}}:</strong>
     <p id="density">Density: {{density}}</p>
     <p id="coverage">Coverage: {{coverage}}</p>
     <p id="compression">Compression: {{compression}}</p>

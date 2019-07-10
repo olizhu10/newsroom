@@ -55,7 +55,7 @@ def get_text(cluster_id, summary, article):
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text=summary_text, article_text=article_text,
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
-        fragments=json['fragments'])
+        fragments=json['fragments'], summary=summary, article=article)
 
 @app.route('/plots/cd', methods=['POST'])
 def show_cdplot():
