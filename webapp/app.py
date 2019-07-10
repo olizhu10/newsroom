@@ -22,15 +22,7 @@ def dir_last_updated(folder):
     return str(max(os.path.getmtime(os.path.join(root_path, f))
                for root_path, dirs, files in os.walk(folder)
                for f in files))
-"""
-@app.route('/cluster', methods=['POST', 'GET'])
-def get_cluster():
-    if request.method == 'POST':
-        cluster_id = request.form['cluster']
-        clusters[request.remote_addr] = db.get_articles(cluster_id)
-        return render_template('cluster.html', cluster=clusters[request.remote_addr], last_updated=dir_last_updated('static'),
-            val=cluster_id)
-"""
+
 @app.route('/search', methods=['POST'])
 def search():
     if request.method == 'POST':

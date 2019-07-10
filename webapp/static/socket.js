@@ -8,13 +8,6 @@ $(document).on('submit', 'form#select-form', function(e) {
   socket.emit('send cluster');
 });
 
-/*$(document).on('submit', 'form#cluster', function(e) {
-  e.preventDefault();
-  var cluster_id = $('#cluster-id').val()
-  $('form#cluster').attr('action', "/cluster/"+cluster_id)
-  console.log('hi')
-})*/
-
 socket.on('cluster retrieved', function(msg) {
   cluster = msg;
   console.log(cluster);
