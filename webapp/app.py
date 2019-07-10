@@ -30,6 +30,12 @@ def search():
         cluster_id = request.form['cluster']
         return redirect(url_for('get_cluster', cluster_id=cluster_id))
 
+@app.route('/random', methods=['POST'])
+def random_cluster():
+    if request.method == 'POST':
+        cluster_id = random.randint(0,12987)
+        return redirect(url_for('get_cluster', cluster_id=cluster_id))
+
 @app.route('/cluster/<int:cluster_id>', methods=['POST','GET'])
 def get_cluster(cluster_id):
     clusters[request.remote_addr] = db.get_articles(cluster_id)

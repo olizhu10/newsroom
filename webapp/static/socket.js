@@ -3,13 +3,6 @@ var cluster;
 var summary;
 var article;
 
-$(document).on('submit', 'form#rand-cluster', function(e) {
-  e.preventDefault();
-  num = Math.floor(Math.random()*12987);
-  $('#cluster-id').attr('value', num);
-  document.getElementById('cluster').submit();
-})
-
 /*$(document).on('submit', 'form#select-form', function(e) {
   e.preventDefault();
   socket.emit('send cluster');
