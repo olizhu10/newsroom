@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for
 from flask_socketio import SocketIO
 import eventlet
 import sqlite3
@@ -22,7 +22,7 @@ def dir_last_updated(folder):
     return str(max(os.path.getmtime(os.path.join(root_path, f))
                for root_path, dirs, files in os.walk(folder)
                for f in files))
-
+"""
 @app.route('/cluster', methods=['POST', 'GET'])
 def get_cluster():
     if request.method == 'POST':
@@ -31,6 +31,19 @@ def get_cluster():
         cluster = db.get_articles(cluster_id)
         return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
             val=cluster_id)
+"""
+@app.route('/search', methods=['POST'])
+def search():
+    if request.method == 'POST':
+        cluster_id = request.form['cluster']
+        return redirect(url_for('get_cluster', cluster_id=cluster_id))
+
+@app.route('/cluster/<int:cluster_id>', methods=['POST','GET'])
+def get_cluster(cluster_id):
+    global cluster
+    cluster = db.get_articles(cluster_id)
+    return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
+        val=cluster_id)
 
 @app.route('/rand-cluster', methods=['POST','GET'])
 def get_rand_cluster():
@@ -86,5 +99,5 @@ def send_info(json):
         pass
 
 if __name__ == '__main__':
-    socketio.run(app, host = '0.0.0.0', port = 5000)
+    socketio.run(app, host = '0.0.0.0', port = 5000, debug=True)
     #socketio.run(app, debug=True)
