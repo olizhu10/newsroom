@@ -51,6 +51,8 @@ def cdplot(cluster):
     density for the inputted matrix"""
 
     matrix = create_matrix(cluster)
+    fig = plt.figure(figsize=(13,8))
+    fig.add_subplot(223)
     plt.xlabel('coverage')
     plt.ylabel('density')
     for x in range(len(matrix)):
@@ -61,13 +63,15 @@ def cdplot(cluster):
             coverages.append(obj.getCoverage())
             densities.append(obj.getDensity())
         plt.scatter(coverages, densities, marker = 'o', c=COLORS[x], label=title, alpha=0.6)
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 
 def complot(cluster):
     """Generates a dot plot for the compression for the inputted matrix"""
 
     matrix = create_matrix(cluster)
+    fig = plt.figure(figsize=(13,8))
+    fig.add_subplot(223)
     plt.xlabel('article')
     plt.ylabel('compression')
     for x in range(len(matrix)):
@@ -76,7 +80,7 @@ def complot(cluster):
         for obj in matrix[x]:
             compressions.append(obj.getCompression())
         plt.scatter([x]*len(compressions), compressions, marker='o', c=COLORS[x], label=title, alpha=0.6)
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 
 class ASData(object):
