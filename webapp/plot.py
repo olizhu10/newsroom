@@ -51,6 +51,8 @@ def cdplot(cluster):
     density for the inputted matrix"""
 
     matrix = create_matrix(cluster)
+    fig = plt.figure(figsize=(10,5))
+    plt.subplot(223)
     plt.xlabel('coverage')
     plt.ylabel('density')
     for x in range(len(matrix)):
@@ -61,7 +63,7 @@ def cdplot(cluster):
             coverages.append(obj.getCoverage())
             densities.append(obj.getDensity())
         plt.scatter(coverages, densities, marker = 'o', c=COLORS[x], label=title, alpha=0.6)
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     return plt
 
 def complot(cluster):
