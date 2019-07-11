@@ -80,7 +80,7 @@ def make_plot(type, cluster_id):
     else:
         plot = complot(cluster)
     img = io.BytesIO()
-    plot.savefig(img)
+    plot.savefig(img, bbox_inches='tight')
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     plot.clf()
