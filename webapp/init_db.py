@@ -5,10 +5,10 @@ from multiprocessing import Pool
 from threading import Lock
 from tqdm import tqdm
 
-db = sqlite3.connect('database0.9.db')
+db = sqlite3.connect('databaseRefined.db')
 c = db.cursor()
 lock = Lock()
-with jsonl.open('../clustering/final_clusters_0.9_cleaned.jsonl') as f:
+with jsonl.open('../clustering/final_clusters.jsonl') as f:
     clusters = f.read()
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()
@@ -32,14 +32,15 @@ def main():
     #Add articles to database
     dict = createDictionary()
     pbar = tqdm(total=len(articles), desc='Parsing json:')
+    data = []
+    q = "INSERT INTO articles (text, summary, title, archive, cluster) VALUES (?,?,?,?,?)"
     for article in articles:
-        q = "INSERT INTO articles (text, summary, title, archive, cluster) VALUES (?,?,?,?,?)"
-        if(article in dict):
-            for t in dict[article]:
-                c.execute(q, (article['text'], article['summary'], article['title'], article['archive'], t))
-                db.commit()
+        if(article['archive'] in dict):
+            for t in dict[article['archive']]:
+                data.append((article['text'], article['summary'], article['title'], article['archive'], t))
         pbar.update(1)
-
+    c.executemany(q, data)
+    db.commit()
 
 if __name__ == '__main__':
     main()
