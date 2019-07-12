@@ -28,6 +28,8 @@ def main():
             for tList in pool.imap_unordered(addArticle, range(len(clusters))):
                 if len(tList)>1:
                     writeFile.appendline(tList)
+                else:
+                    writeFile.appendline([])
                 pbar.update(1)
 
 if __name__ == '__main__':
