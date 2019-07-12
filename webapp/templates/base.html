@@ -11,7 +11,6 @@
         $('.frag').click(function(e) {
           id = 'article-text'
           keyword = e.target.value
-          console.log(keyword)
           highlight(id,keyword)
         });
       });
@@ -23,7 +22,6 @@
         instance.mark(keyword, {
           separateWordSearch:false
         });
-        console.log('marked');
       };
     </script>
   </head>

@@ -24,7 +24,7 @@
   padding: 10px;
   margin: 5px;
   left: 10px;
-  width: 25vw;
+  width: 20vw;
   overflow: auto;
 }
 
@@ -37,11 +37,7 @@
   margin-top: 2.5px;
 }
 
-.highlight {
-  background-color: yellow;
-}
-
 mark{
-    background: orange;
+    background: yellow;
     color: black;
 }
