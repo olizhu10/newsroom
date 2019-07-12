@@ -36,12 +36,12 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
   <div id="texts">
     <div id="summary">
       <h3>Summary:</h3>
-      <p id="summary-text">{{summary_text}}</p>
+      <p class="text" id="summary-text">{{summary_text}}</p>
     </div>
 
     <div id="article">
       <h3>Article:</h3>
-      <p id="article-text">{{article_text}}</p>
+      <p class="text" id="article-text">{{article_text}}</p>
     </div>
   </div>
   {% endblock %}
@@ -55,7 +55,8 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <p id="compression">Compression: {{compression}}</p>
     <div id="fragments">Fragments:
       {% for fragment in fragments %}
-        <button class='frag' value='{{fragment}}'>{{fragment}}</button>
+        <span class="frag{{loop.index0}}">{{fragment}}</span>,
+        <script type='text/javascript'>highlight("{{fragment}}",{{loop.index0}})</script>
       {% endfor %}
     </div>
     <br>
