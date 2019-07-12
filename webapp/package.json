@@ -1,0 +1,16 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "Setup Instructions ================== 1. Create a virtual environment, instuctions [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) 2. Install packages ```sh pip install -r requirements.txt ``` 3. Navigate into the webapp directory 4. Initialize the database ```sh python3 init_db.py ``` 5. Run the server ```sh python3 app.py ``` 6. The app should be running on port 5000.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "mark.js": "^8.11.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,7 +1,9 @@
 import sqlite3
 
+DATABASE_NAME = 'database.db'
+
 def get_articles(cluster_id):
-    db = sqlite3.connect('database0.9.db')
+    db = sqlite3.connect(DATABASE_NAME)
     c = db.cursor()
     q = "SELECT * FROM articles WHERE cluster=?"
     t = (cluster_id,)

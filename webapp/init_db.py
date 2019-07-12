@@ -5,7 +5,7 @@ from multiprocessing import Pool
 from threading import Lock
 from tqdm import tqdm
 
-db = sqlite3.connect('database0.9.db')
+db = sqlite3.connect('database.db')
 c = db.cursor()
 lock = Lock()
 with jsonl.open('../clustering/final_clusters_0.9_cleaned.jsonl') as f:
