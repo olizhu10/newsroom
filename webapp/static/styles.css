@@ -36,3 +36,12 @@
 #cluster-submit {
   margin-top: 2.5px;
 }
+
+.highlight {
+  background-color: yellow;
+}
+
+mark{
+    background: orange;
+    color: black;
+}

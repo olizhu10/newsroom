@@ -7,10 +7,13 @@ def read_clusters():
     with jsonl.open(fileName) as file:
         clusters = file.read()
     count = 0
+    num = 0
     for cluster in clusters:
-        print('cluster '+str(count)+':')
-        pp.pprint(cluster)
+        num += len(cluster)
+        #print('cluster '+str(count)+':')
+        #pp.pprint(cluster)
         count += 1
+    print(num)
 
 if __name__ == '__main__':
     read_clusters()

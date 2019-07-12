@@ -9,6 +9,7 @@ from plot import cdplot, complot
 import random
 import io
 import base64
+import sys
 
 app = Flask(__name__, template_folder='templates')
 clusters = {}
@@ -56,21 +57,27 @@ def get_text(cluster_id, summary, article):
     article_text = cluster[article][0]
     json = get_info(summary, article)
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
-        val=cluster_id, summary_text=summary_text, article_text=article_text,
+        val=cluster_id, summary_text=str(summary_text), article_text=str(article_text),
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], summary=summary, article=article)
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
     if request.method == 'POST':
-        cluster_id = request.form['cid']
-        return redirect(url_for('make_plot', type='cd', cluster_id=cluster_id))
+        if sys.platform == 'darwin':
+            return '<p>Plots cannot be generated on Mac OS X. sorry :(</p>'
+        else:
+            cluster_id = request.form['cid']
+            return redirect(url_for('make_plot', type='cd', cluster_id=cluster_id))
 
 @app.route('/complot', methods=['POST'])
 def com_plot():
     if request.method == 'POST':
-        cluster_id = request.form['cid']
-        return redirect(url_for('make_plot', type='com', cluster_id=cluster_id))
+        if sys.platform == 'darwin':
+            return '<p>Plots cannot be generated on Mac OS X. sorry :(</p>'
+        else:
+            cluster_id = request.form['cid']
+            return redirect(url_for('make_plot', type='com', cluster_id=cluster_id))
 
 @app.route('/cluster/<int:cluster_id>/<type>', methods=['GET','POST'])
 def make_plot(type, cluster_id):
@@ -95,10 +102,13 @@ def get_info(summary, article):
     try:
         cluster = clusters[request.remote_addr]
         fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
+        string_frags = []
+        for frag in fragments.strings():
+            string_frags.append(str(frag))
         json = {'density': fragments.density(),
                 'coverage': fragments.coverage(),
                 'compression': fragments.compression(),
-                'fragments': str(fragments.strings())}
+                'fragments': fragments.strings()}
         return json
     except:
         pass
