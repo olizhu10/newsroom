@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    Content-Type: text/html; charset=utf-8
     <meta charset="utf-8"/>
     <link rel="stylesheet" type="text/css" href="/static/styles.css?u={{ last_updated }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script type='text/javascript' src="/static/hilitor.js?u={{ last_updated }}"></script>
     <script src="/static/mark.min.js" charset="UTF-8"></script>
     <script type='text/javascript' charset='utf-8'>
+      $(document).ready(function() {
+        $('.frag').click(function(e) {
+          id = 'article-text'
+          keyword = e.target.value
+          console.log(keyword)
+          highlight(id,keyword)
+        });
+      });
+
       function highlight(id,keyword) {
         var context = document.querySelector("#"+id);
         var instance = new Mark(context);
@@ -17,7 +24,7 @@
           separateWordSearch:false
         });
         console.log('marked');
-      }
+      };
     </script>
   </head>
 

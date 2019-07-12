@@ -55,7 +55,7 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <p id="compression">Compression: {{compression}}</p>
     <div id="fragments">Fragments:
       {% for fragment in fragments %}
-        <button onclick="highlight('article-text', '{{fragment}}', 'highlight')">{{fragment}}</button>
+        <button class='frag' value='{{fragment}}'>{{fragment}}</button>
       {% endfor %}
     </div>
     {% endif %}
