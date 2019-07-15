@@ -11,6 +11,9 @@ import io
 import base64
 import sys
 import nltk
+#nltk.download("punkt")
+#nltk.download('averaged_perceptron_tagger')
+
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 
@@ -64,10 +67,14 @@ def get_text(cluster_id, summary, article):
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
         summary=summary, article=article)
-@app.route('/removeCluster/<int:cluster_id>')
-def remove_cluster(cluster_id):
-    db.remove_cluster(cluster_id)
-    
+
+@app.route('/remove', methods=['POST'])
+def remove_cluster():
+    if request.method == 'POST':
+        cluster_id = request.form['cid']
+        db.remove_cluster(cluster_id)
+    return render_template('base.html', last_updated=dir_last_updated('static'))
+
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
     if request.method == 'POST':
@@ -133,9 +140,9 @@ def namesList(sentence):
 def nameDifferences(summary, article):
     diffList = []
     aList = namesList(article)
-    for word in namesList(article):
-        diffList.append(word)
-    return aList
-
+    for word in namesList(summary):
+        if not (word in aList) and not (word in diffList):
+            diffList.append(word)
+    return diffList
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug=True)

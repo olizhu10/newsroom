@@ -70,5 +70,9 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Create Compression plot" name="com-button"/>
     </form>
+    <form id="removeCluster" action="/remove" target="_blank" method="POST">
+      <input type="hidden" name="cid" value="{{val}}"/>
+      <input type="submit" value="Remove Cluster" name="clusterRemove"/>
+    </form>
   </div>
   {% endblock %}
