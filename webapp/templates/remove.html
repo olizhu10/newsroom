@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+  <div>
+    <form action="/remove" method='POST'>
+      <p>Are you sure you want to delete cluster {{cluster_id}}?</p>
+      <input name='cid' type='hidden' value='{{cluster_id}}'/>
+      <input name='remove' type='submit' value='yes'/>
+    </form>
+    <form action="/">
+      <input name='remove' type='submit' value='no'/>
+    </form>
+</html>

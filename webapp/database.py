@@ -9,12 +9,16 @@ def get_articles(cluster_id):
     t = (cluster_id,)
     c.execute(q,t)
     articles = c.fetchall()
+    db.close()
     return articles
 
 def remove_cluster(cluster_id):
     db = sqlite3.connect(DATABASE_NAME)
     c = db.cursor()
-    q = "REMOVE FROM articles WHERE cluster=?"
+    print(cluster_id)
+    q = "DELETE FROM articles WHERE cluster=?"
     t = (cluster_id,)
     c.execute(q,t)
+    db.commit()
+    db.close()
     return

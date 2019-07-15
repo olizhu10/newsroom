@@ -13,12 +13,17 @@ import sys
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
+#nltk.download("punkt")
+#nltk.download('averaged_perceptron_tagger')
 
 app = Flask(__name__, template_folder='templates')
 clusters = {}
 
 @app.route('/')
-def index():
+def index(message=None):
+    if message != None:
+        return render_template('base.html', last_updated=dir_last_updated('static'),
+            message=message)
     return render_template('base.html', last_updated=dir_last_updated('static'))
 
 @app.route('/search', methods=['POST'])
@@ -30,13 +35,16 @@ def search():
 @app.route('/random', methods=['POST'])
 def random_cluster():
     if request.method == 'POST':
-        cluster_id = random.randint(0,12987)
+        cluster_id = random.randint(0,13487)
         return redirect(url_for('get_cluster', cluster_id=cluster_id))
 
 @app.route('/cluster/<int:cluster_id>', methods=['POST','GET'])
 def get_cluster(cluster_id):
     clusters[request.remote_addr] = db.get_articles(cluster_id)
     cluster = clusters[request.remote_addr]
+    if cluster == []:
+        message= "The cluster you searched for doesn't exist. Please select a new one."
+        return redirect(url_for('index', message=message))
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text="No summary selected.", article_text="No article selected.")
 
@@ -64,9 +72,18 @@ def get_text(cluster_id, summary, article):
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
         summary=summary, article=article)
-@app.route('/removeCluster/<int:cluster_id>')
-def remove_cluster(cluster_id):
-    db.remove_cluster(cluster_id)
+
+@app.route('/remove', methods=['POST'])
+def remove_cluster():
+    if request.method == 'POST':
+        cluster_id = request.form['cid']
+        db.remove_cluster(cluster_id)
+        message="Cluster Removed"
+        return redirect(url_for('index',message=message))
+
+@app.route('/confirm/<int:cluster_id>', methods=['GET','POST'])
+def confirm(cluster_id):
+    return render_template('remove.html', cluster_id)
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():

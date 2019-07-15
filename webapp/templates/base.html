@@ -6,10 +6,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script type='text/javascript' src="/static/mark.min.js"></script>
     <script type='text/javascript' src="/static/highlight.js?u={{ last_updated }}"></script>
-
   </head>
 
   <body>
+    {% block message %}
+    {% if message %}
+      {{message}}
+    {% endif %}
+    {% endblock %}
     <div id="selection">
       {% block cluster %}
       <div id="cluster-select">
