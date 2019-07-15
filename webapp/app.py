@@ -71,7 +71,7 @@ def get_text(cluster_id, summary, article):
     article_text = cluster[article][0]
     json = get_info(summary, article)
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
-        val=cluster_id, summary_text=str(summary_text), article_text=str(article_text),
+        val=cluster_id, summary_text=json['annotation'][0], article_text=json['annotation'][1],
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
         summary=summary, article=article)
@@ -126,19 +126,19 @@ def dir_last_updated(folder):
                for f in files))
 
 def get_info(summary, article):
-    try:
-        cluster = clusters[request.remote_addr]
-        fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
-        string_frags = []
-        for frag in fragments.strings():
-            string_frags.append(str(frag))
-        json = {'density': fragments.density(),
-                'coverage': fragments.coverage(),
-                'compression': fragments.compression(),
-                'fragments': fragments.strings()}
-        return json
-    except:
-        pass
+
+    cluster = clusters[request.remote_addr]
+    fragments = Fragments(cluster[int(summary)][1], cluster[int(article)][0])
+    string_frags = []
+    for frag in fragments.strings():
+        string_frags.append(str(frag))
+    json = {'annotation': fragments.annotate(),
+            'density': fragments.density(),
+            'coverage': fragments.coverage(),
+            'compression': fragments.compression(),
+            'fragments': fragments.annotate_fragments()}
+    return json
+
 
 def preprocess(sent):
     return nltk.pos_tag(nltk.word_tokenize(sent))

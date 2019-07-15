@@ -1,4 +1,24 @@
 {% extends "base.html" %}
+{% block script %}
+<script type='text/javascript'>
+
+  function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+  }
+
+  function show_summary() {
+    document.querySelector('#summary-text').innerHTML = '{{summary_text | safe}}'
+  }
+
+  function show_article() {
+    document.querySelector('#article-text').innerHTML = '{{article_text | safe}}'
+  }
+  
+</script>
+{% endblock %}
 {% block cluster_input %}
 Cluster index: <input type="text" name="cluster" value={{val}} />
 {% endblock %}
@@ -36,12 +56,16 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
   <div id="texts">
     <div id="summary">
       <h3>Summary:</h3>
-      <p class="text" id="summary-text">{{summary_text}}</p>
+      <div class="text" id="summary-text">
+        <script type='text/javascript'>show_summary()</script>
+      </div>
     </div>
 
     <div id="article">
       <h3>Article:</h3>
-      <p class="text" id="article-text">{{article_text}}</p>
+      <div class="text" id="article-text">
+        <script type='text/javascript'>show_article()</script>
+      </div>
     </div>
   </div>
   {% endblock %}
@@ -64,8 +88,8 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <p id="compression">Compression: {{compression}}</p>
     <div id="fragments">Fragments:
       {% for fragment in fragments %}
-        <span class="frag{{loop.index0}}">{{fragment}}</span>,
-        <script type='text/javascript'>highlight("{{fragment}}",{{loop.index0}})</script>
+        {{fragment | safe}}
+        <!--<script type='text/javascript'>highlight("{{fragment}}",{{loop.index0}})</script>-->
       {% endfor %}
     </div>
     <p id="diffNames">Names in Summary not in Article: {{diffNames}}</p>

@@ -393,6 +393,34 @@ class Fragments(object):
 
         return summary, text
 
+    def annotate_fragments(self):
+
+        start = """
+            <u
+            style="color: {color}; border-color: {color};"
+            data-ref="{ref}" title="Length: {length}"
+            >
+        """.strip()
+
+        end = """
+            </u>
+        """.strip()
+
+        colors = self._itercolors()
+
+        frags = []
+        for string in self.strings():
+            ref = _random.randint(0, 1e10)
+            color = next(colors)
+            tag1 = start.format(
+                color = color,
+                ref = ref,
+                length = len(string),
+            )
+            s = str(string)
+            frags.append(tag1+s+end)
+
+        return frags
 
     def _itercolors(self):
 
