@@ -11,27 +11,8 @@ import io
 import base64
 import sys
 import nltk
-nltk.download("punkt")
-nltk.download('averaged_perceptron_tagger')
-
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
-def preprocess(sent):
-    return nltk.pos_tag(nltk.word_tokenize(sent))
-
-def namesList(sentence):
-    nList = []
-    for word in preprocess(sentence):
-        if word[1]=="NNP":
-            nList.append(word[0])
-    return nList
-
-def nameDifferences(summary, article):
-    diffList = []
-    aList = namesList(article)
-    for word in namesList(article):
-        diffList.append(word)
-    return aList
 
 app = Flask(__name__, template_folder='templates')
 clusters = {}
@@ -135,6 +116,23 @@ def get_info(summary, article):
         return json
     except:
         pass
+
+def preprocess(sent):
+    return nltk.pos_tag(nltk.word_tokenize(sent))
+
+def namesList(sentence):
+    nList = []
+    for word in preprocess(sentence):
+        if word[1]=="NNP":
+            nList.append(word[0])
+    return nList
+
+def nameDifferences(summary, article):
+    diffList = []
+    aList = namesList(article)
+    for word in namesList(article):
+        diffList.append(word)
+    return aList
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug=True)
