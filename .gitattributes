@@ -1,2 +1,0 @@
-databaseRefined_0.9.db filter=lfs diff=lfs merge=lfs -text
-*.db filter=lfs diff=lfs merge=lfs -text
