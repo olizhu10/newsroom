@@ -12,7 +12,7 @@ def get_articles(cluster_id):
     return articles
 
 def remove_cluster(cluster_id):
-    db = sqlite3.connect(DATABSE_NAME)
+    db = sqlite3.connect(DATABASE_NAME)
     c = db.cursor()
     q = "REMOVE FROM articles WHERE cluster=?"
     t = (cluster_id,)

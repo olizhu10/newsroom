@@ -48,6 +48,15 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
 
   {% block info %}
   <div id="info">
+    <form id="cdplot" action="/cdplot" target="_blank" method="POST">
+      <input type="hidden" name="cid" value="{{val}}"/>
+      <input type="submit" value="Create Coverage-Density plot" name="cd-button"/>
+    </form>
+    <form id="complot" action="/complot" target="_blank" method="POST">
+      <input type="hidden" name="cid" value="{{val}}"/>
+      <input type="submit" value="Create Compression plot" name="com-button"/>
+    </form>
+    <br>
     {% if summary or (summary == 0) %}
     <strong>Information for summary {{summary}}, article {{article}}:</strong>
     <p id="density">Density: {{density}}</p>
@@ -60,15 +69,6 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       {% endfor %}
     </div>
     <p id="diffNames">Names in Summary not in Article: {{diffNames}}</p>
-    <br>
     {% endif %}
-    <form id="cdplot" action="/cdplot" target="_blank" method="POST">
-      <input type="hidden" name="cid" value="{{val}}"/>
-      <input type="submit" value="Create Coverage-Density plot" name="cd-button"/>
-    </form>
-    <form id="complot" action="/complot" target="_blank" method="POST">
-      <input type="hidden" name="cid" value="{{val}}"/>
-      <input type="submit" value="Create Compression plot" name="com-button"/>
-    </form>
   </div>
   {% endblock %}

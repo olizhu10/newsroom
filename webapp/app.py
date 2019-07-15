@@ -67,7 +67,7 @@ def get_text(cluster_id, summary, article):
 @app.route('/removeCluster/<int:cluster_id>')
 def remove_cluster(cluster_id):
     db.remove_cluster(cluster_id)
-    
+
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
     if request.method == 'POST':
@@ -133,9 +133,10 @@ def namesList(sentence):
 def nameDifferences(summary, article):
     diffList = []
     aList = namesList(article)
-    for word in namesList(article):
-        diffList.append(word)
-    return aList
+    for word in namesList(summary):
+        if not (word in aList) and not (word in diffList):
+            diffList.append(word)
+    return diffList
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug=True)
