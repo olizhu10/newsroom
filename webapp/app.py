@@ -10,6 +10,28 @@ import random
 import io
 import base64
 import sys
+import nltk
+nltk.download("punkt")
+nltk.download('averaged_perceptron_tagger')
+
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+def preprocess(sent):
+    return nltk.pos_tag(nltk.word_tokenize(sent))
+
+def namesList(sentence):
+    nList = []
+    for word in preprocess(sentence):
+        if word[1]=="NNP":
+            nList.append(word[0])
+    return nList
+
+def nameDifferences(summary, article):
+    diffList = []
+    aList = namesList(article)
+    for word in namesList(article):
+        diffList.append(word)
+    return aList
 
 app = Flask(__name__, template_folder='templates')
 clusters = {}
@@ -59,7 +81,8 @@ def get_text(cluster_id, summary, article):
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text=str(summary_text), article_text=str(article_text),
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
-        fragments=json['fragments'], summary=summary, article=article)
+        fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
+        summary=summary, article=article)
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():

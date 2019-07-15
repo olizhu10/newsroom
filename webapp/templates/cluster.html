@@ -59,6 +59,7 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
         <script type='text/javascript'>highlight("{{fragment}}",{{loop.index0}})</script>
       {% endfor %}
     </div>
+    <p id="diffNames">Names in Summary not in Article: {{diffNames}}</p>
     <br>
     {% endif %}
     <form id="cdplot" action="/cdplot" target="_blank" method="POST">
