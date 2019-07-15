@@ -84,7 +84,10 @@ def get_text(cluster_id, summary, article):
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
         summary=summary, article=article)
-
+@app.route('/removeCluster/<int:cluster_id>')
+def remove_cluster(cluster_id):
+    db.remove_cluster(cluster_id)
+    
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
     if request.method == 'POST':
