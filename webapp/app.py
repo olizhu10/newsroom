@@ -20,11 +20,14 @@ app = Flask(__name__, template_folder='templates')
 clusters = {}
 
 @app.route('/')
-def index(message=None):
-    if message != None:
-        return render_template('base.html', last_updated=dir_last_updated('static'),
-            message=message)
+def index():
     return render_template('base.html', last_updated=dir_last_updated('static'))
+
+@app.route('/<cluster_id>/<message>')
+def home(cluster_id, message):
+    print(message)
+    return render_template('base.html', last_updated=dir_last_updated('static'),
+        message=message)
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -44,7 +47,7 @@ def get_cluster(cluster_id):
     cluster = clusters[request.remote_addr]
     if cluster == []:
         message= "The cluster you searched for doesn't exist. Please select a new one."
-        return redirect(url_for('index', message=message))
+        return redirect(url_for('home', cluster_id=cluster_id, message=message))
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text="No summary selected.", article_text="No article selected.")
 
@@ -72,18 +75,6 @@ def get_text(cluster_id, summary, article):
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
         summary=summary, article=article)
-
-@app.route('/remove', methods=['POST'])
-def remove_cluster():
-    if request.method == 'POST':
-        cluster_id = request.form['cid']
-        db.remove_cluster(cluster_id)
-        message="Cluster Removed"
-        return redirect(url_for('index',message=message))
-
-@app.route('/confirm/<int:cluster_id>', methods=['GET','POST'])
-def confirm(cluster_id):
-    return render_template('remove.html', cluster_id)
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
@@ -116,6 +107,18 @@ def make_plot(type, cluster_id):
     plot_url = base64.b64encode(img.getvalue()).decode()
     plot.clf()
     return '<img src="data:image/png;base64,{}">'.format(plot_url)
+
+@app.route('/remove', methods=['POST'])
+def remove_cluster():
+    if request.method == 'POST':
+        cluster_id = request.form['cid']
+        db.remove_cluster(cluster_id)
+        message="Cluster Removed"
+        return redirect(url_for('home',message=message))
+
+@app.route('/confirm/<int:cluster_id>', methods=['GET','POST'])
+def confirm(cluster_id):
+    return render_template('remove.html', cluster_id)
 
 def dir_last_updated(folder):
     return str(max(os.path.getmtime(os.path.join(root_path, f))
