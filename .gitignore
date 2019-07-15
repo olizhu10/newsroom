@@ -4,9 +4,7 @@ dataset_files
 clustering/identifier.json
 clustering/fullDict.txt
 env
-database.db
-database2.db
+databases
 <<<<<<< HEAD
-database0.9.db
 =======
 >>>>>>> 9348f449e3e62b3c149d7a263e692a9556ffc516
