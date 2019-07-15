@@ -11,8 +11,8 @@ import io
 import base64
 import sys
 import nltk
-nltk.download("punkt")
-nltk.download('averaged_perceptron_tagger')
+#nltk.download("punkt")
+#nltk.download('averaged_perceptron_tagger')
 
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
@@ -29,9 +29,10 @@ def namesList(sentence):
 def nameDifferences(summary, article):
     diffList = []
     aList = namesList(article)
-    for word in namesList(article):
-        diffList.append(word)
-    return aList
+    for word in namesList(summary):
+        if not (word in aList) and not (word in diffList):
+            diffList.append(word)
+    return diffList
 
 app = Flask(__name__, template_folder='templates')
 clusters = {}
