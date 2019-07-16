@@ -11,12 +11,12 @@
   </head>
 
   <body>
-    {% block message %}
-    {% if message %}
-      {{message}}
-    {% endif %}
-    {% endblock %}
     <div id="selection">
+      {% block message %}
+      {% if message %}
+        {{message}}
+      {% endif %}
+      {% endblock %}
       {% block cluster %}
       <div id="cluster-select">
         <p class="prompt">Please enter the cluster you'd like to analyze.</p>

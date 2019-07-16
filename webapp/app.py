@@ -33,6 +33,9 @@ def home(cluster_id, message):
 def search():
     if request.method == 'POST':
         cluster_id = request.form['cluster']
+        if cluster_id == '':
+            message = "Please enter a valid cluster index."
+            return redirect(url_for('home', cluster_id=0, message=message))
         return redirect(url_for('get_cluster', cluster_id=cluster_id))
 
 @app.route('/random', methods=['POST'])
