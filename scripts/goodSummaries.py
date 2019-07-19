@@ -6,6 +6,7 @@ from tqdm import tqdm
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
+import json
 def preprocess(sent):
     sent = nltk.word_tokenize(sent)
     sent = nltk.pos_tag(sent)
@@ -31,29 +32,52 @@ def namesList(sentence):
             nList.append(word[0])
     return nList
 
-def nameDifferences(summary, article):
+def nameDifferences(summaryList, articleList):
     diffList = []
-    aList = namesList(article)
-    for word in namesList(summary):
-        if not (word in aList) and not (word in diffList):
+    for word in summaryList:
+        if not (word in articleList):
             return False
     return True
 
+def namesListList(list):
+    nList = []
+    for sentence in list:
+        nList.append(namesList(sentence))
+    return nList
+
+dict = createDictionary()
+def analyzeCluster(x):
+    smallDict = {}
+    mbar = tqdm(total=len(clusters[x]), desc=('Checking cluster:'))
+    articleList = []
+    summaryList = []
+    for article in clusters[x]:
+        articleList.append(dict[article][1])
+        summaryList.append(dict[article][0])
+    articleList = namesListList(articleList)
+    summaryList = namesListList(summaryList)
+    for aIndex, article in enumerate(articleList, start = 0):
+        summaries = []
+        for sIndex, summary in enumerate(summaryList, start = 0):
+            if(nameDifferences(summary, article)):
+                summaries.append(clusters[x][sIndex])
+        if len(summaries)>=4:
+            smallDict[clusters[x][aIndex]] = summaries
+        mbar.update(1)
+    return smallDict
+
 def main():
-    dict = createDictionary()
     articleDict = {}
-    count = 0
-    for cluster in clusters:
-        for article in cluster:
-            summaries = []
-            for article_alt in cluster:
-                if(nameDifferences(dict[article_alt][0], dict[article][1])):
-                    summaries.append(article_alt)
-            if len(summaries)>=4:
-                articleDict[article] = summaries
-                count += 1
-    json.dump(dict,'../clustering/articleSummaryPairs.json')
-    print("Count" + count)
+    pbar = tqdm(total=len(clusters), desc='Going through Clusters:')
+    qbar = tqdm(total=70000, desc='Good articles found with >=4 summaries:')
+    with Pool(processes=15) as pool:
+        for smallDict in pool.imap_unordered(analyzeCluster, range(len(clusters))):
+            for key in smallDict:
+                articleDict[key] = smallDict[key]
+                qbar.update(1)
+            pbar.update(1)
+    with open('../clustering/articleSummaryPairs.json', 'w+') as file:
+        json.dump(articleDict, file)
 
 if __name__ == '__main__':
     main()
