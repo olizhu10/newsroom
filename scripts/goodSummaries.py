@@ -29,9 +29,14 @@ def namesList(sentence):
     nList = []
     for word in preprocess(sentence):
         if word[1]=="NNP":
-            nList.append(word[0])
+            nList.append(word[0].lower())
     return nList
 
+def fullList(sentence):
+    nList = []
+    for word in preprocess(sentence):
+        nList.append(word[0].lower())
+    return nList
 def nameDifferences(summaryList, articleList):
     diffList = []
     for word in summaryList:
@@ -45,25 +50,30 @@ def namesListList(list):
         nList.append(namesList(sentence))
     return nList
 
+def fullListList(list):
+    nList = []
+    for sentence in list:
+        nList.append(fullList(sentence))
+    return nList
+
 dict = createDictionary()
 def analyzeCluster(x):
     smallDict = {}
-    mbar = tqdm(total=len(clusters[x]), desc=('Checking cluster:'))
     articleList = []
     summaryList = []
     for article in clusters[x]:
-        articleList.append(dict[article][1])
-        summaryList.append(dict[article][0])
-    articleList = namesListList(articleList)
+        if(len(preprocess(dict[article][1]))>=50 and len(preprocess(dict[article][0]))>=5):
+            articleList.append(dict[article][1])
+            summaryList.append(dict[article][0])
+    articleList = fullListList(articleList)
     summaryList = namesListList(summaryList)
     for aIndex, article in enumerate(articleList, start = 0):
         summaries = []
         for sIndex, summary in enumerate(summaryList, start = 0):
-            if(nameDifferences(summary, article)):
+            if(nameDifferences(summary, article) or aIndex == sIndex):
                 summaries.append(clusters[x][sIndex])
         if len(summaries)>=4:
             smallDict[clusters[x][aIndex]] = summaries
-        mbar.update(1)
     return smallDict
 
 def main():
@@ -76,7 +86,7 @@ def main():
                 articleDict[key] = smallDict[key]
                 qbar.update(1)
             pbar.update(1)
-    with open('../clustering/articleSummaryPairs.json', 'w+') as file:
+    with open('../clustering/articleSummaryPairsMinLength.json', 'w+') as file:
         json.dump(articleDict, file)
 
 if __name__ == '__main__':

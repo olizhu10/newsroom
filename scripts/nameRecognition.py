@@ -1,6 +1,4 @@
 import nltk
-nltk.download("punkt")
-nltk.download('averaged_perceptron_tagger')
 
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
@@ -10,7 +8,7 @@ def preprocess(sent):
     return sent
 
 def main():
-    ex = 'European authorities fined Google a record $5.1 billion on Wednesday for abusing its power in the mobile phone market and ordered the company to alter its practices'
+    ex = 'google gets Sued by Facebook'
     for word in preprocess(ex):
         if word[1]=="NNP":
             print(word[0])

@@ -55,10 +55,10 @@ def test():
     dict = createDictionary()
     with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as file:
         clusters = file.read()
-    cluster = clusters[12824]
-    pp = pprint.PrettyPrinter()
-    pp.pprint(article_sims(cluster,dict)))
-    pp.pprint(summary_sims(cluster,dict)))
+    cluster = clusters[4389]
+    np.set_printoptions(linewidth=500, precision=3, threshold=100000)
+    print(np.array(article_sims(cluster,dict)))
+    print(np.array(summary_sims(cluster,dict)))
 
 if __name__ == '__main__':
     test()

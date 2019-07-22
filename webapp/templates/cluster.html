@@ -16,7 +16,7 @@
   function show_article() {
     document.querySelector('#article-text').innerHTML = '{{article_text | safe}}'
   }
-  
+
 </script>
 {% endblock %}
 {% block cluster_input %}
@@ -98,5 +98,6 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Remove Cluster" name="clusterRemove"/>
     </form>
+    <p id="compression">Good Summary?: {{pairing}}</p>
   </div>
   {% endblock %}

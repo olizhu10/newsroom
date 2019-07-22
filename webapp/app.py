@@ -13,11 +13,14 @@ import sys
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
+import jsonl
 #nltk.download("punkt")
 #nltk.download('averaged_perceptron_tagger')
 
 app = Flask(__name__, template_folder='templates')
 clusters = {}
+with jsonl.open('../clustering/cluster_pairings.jsonl') as f:
+    pairings = f.read()
 
 @app.route('/')
 def index():
@@ -73,11 +76,18 @@ def get_text(cluster_id, summary, article):
     summary_text = cluster[summary][1]
     article_text = cluster[article][0]
     json = get_info(summary, article)
+    try:
+        if summary in pairings[cluster_id][article]:
+            goodPairing = "Yes"
+        else:
+            goodPairing = "No"
+    except:
+        goodPairing = "No"
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text=json['annotation'][0], article_text=json['annotation'][1],
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
-        summary=summary, article=article)
+        summary=summary, article=article, pairing = goodPairing)
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
