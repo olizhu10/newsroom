@@ -24,10 +24,25 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
 {% endblock %}
 {% block buttons %}
 <div id= "buttons">
-  <form id="select-form" action="/select" method="POST">
+  <form id="article-form" action="/article-select" method="POST">
+    <p class="prompt">Select the article you wish to display.</p>
+    <select name="article-select" id="article-select">
+      {% for s in range(article_list|length) %}
+        {% if s == article %}
+          <option selected="selected" value= {{s}}>{{s}}</option>
+        {% else %}
+          <option value= {{s}}>{{s}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <input type="hidden" name="cid" value="{{val}}"/>
+    <input type="submit" value="Submit"/><br>
+    </form>
+    {% if summary_list %}
+    <form id="summary-form" action="/summary-select" method="POST">
     <p class="prompt">Select the summary you wish to display.</p>
     <select name="summary-select" id="summary-select">
-      {% for s in range(cluster|length) %}
+      {% for s in range(summary_list|length) %}
         {% if s == summary %}
           <option selected="selected" value= {{s}}>{{s}}</option>
         {% else %}
@@ -35,20 +50,12 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
         {% endif %}
       {% endfor %}
     </select>
-
-    <p class="prompt">Select the article you wish to display.</p>
-    <select name="article-select" id="article-select">
-      {% for s in range(cluster|length) %}
-        {% if s == article %}
-          <option selected="selected" value= {{s}}>{{s}}</option>
-        {% else %}
-          <option value= {{s}}>{{s}}</option>
-        {% endif %}
-      {% endfor %}
-    </select><br>
+    <input type="hidden" name="article-select" value="{{article}}"/>
     <input type="hidden" name="cid" value="{{val}}"/>
     <input type="submit" value="Submit"/>
-  </form>
+    </form>
+    {% endif %}
+
 </div>
 {% endblock %}
 
@@ -98,6 +105,5 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Remove Cluster" name="clusterRemove"/>
     </form>
-    <p id="compression">Good Summary?: {{pairing}}</p>
   </div>
   {% endblock %}
