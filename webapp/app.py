@@ -87,7 +87,7 @@ def get_text_selected(cluster_id, article, summary):
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text=json['annotation'][0], article_text=json['annotation'][1],
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
-        fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
+        fragments=json['fragments'],
         summary=summary, article=article, valid_summary_list=get_summaries(cluster_id,article),
         article_list=cluster, valid_article_list = get_articles(cluster_id))
 
