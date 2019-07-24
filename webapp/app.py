@@ -28,7 +28,6 @@ def index():
 
 @app.route('/<cluster_id>/<message>')
 def home(cluster_id, message):
-    print(message)
     return render_template('base.html', last_updated=dir_last_updated('static'),
         message=message)
 
@@ -45,6 +44,10 @@ def search():
 def random_cluster():
     if request.method == 'POST':
         cluster_id = random.randint(0,13487)
+        article_list = get_articles(cluster_id)
+        if article_list == []:
+            message = "This cluster is empty. Please select a new one."
+            return redirect(url_for('home', message=message, cluster_id=cluster_id))
         return redirect(url_for('get_cluster', cluster_id=cluster_id))
 
 @app.route('/cluster/<int:cluster_id>', methods=['POST','GET'])
@@ -63,6 +66,10 @@ def select_article():
     if request.method == 'POST':
         article = request.form['article-select']
         cluster_id = request.form['cid']
+        article_list = get_articles(cluster_id)
+        if article_list == []:
+            message = "This cluster is empty. Please select a new one."
+            return redirect(url_for('home', message=message, cluster_id=cluster_id))
         return redirect(url_for('get_text_unselected', article=article, cluster_id=cluster_id))
 
 @app.route('/summary-select', methods=['POST'])
@@ -81,14 +88,13 @@ def get_text_selected(cluster_id, article, summary):
     except:
         clusters[request.remote_addr] = db.get_articles(cluster_id)
         cluster = clusters[request.remote_addr]
-    summary_text = cluster[summary][1]
-    article_text = cluster[article][0]
+    #summary_text = cluster[summary][1]
+    #article_text = cluster[article][0]
     json = get_info(summary, article)
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text=json['annotation'][0], article_text=json['annotation'][1],
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
-        fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
-        summary=summary, article=article, valid_summary_list=get_summaries(cluster_id,article),
+        fragments=json['fragments'], summary=summary, article=article, valid_summary_list=get_summaries(cluster_id,article),
         article_list=cluster, valid_article_list = get_articles(cluster_id))
 
 @app.route('/cluster/<int:cluster_id>/<int:article>/', methods=['POST','GET'])
@@ -99,9 +105,8 @@ def get_text_unselected(cluster_id, article):
         clusters[request.remote_addr] = db.get_articles(cluster_id)
         cluster = clusters[request.remote_addr]
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
-        val=cluster_id, article=article,
-        article_list=cluster, valid_article_list = get_articles(cluster_id),
-        valid_summary_list = get_summaries(cluster_id, article))
+        val=cluster_id, article=article, article_list=cluster, valid_article_list=get_articles(cluster_id),
+        valid_summary_list=get_summaries(cluster_id, article))
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
@@ -185,7 +190,7 @@ def nameDifferences(summary, article):
 
 def get_articles(cluster_id):
     articles = []
-    for key in cluster_list[cluster_id]:
+    for key in cluster_list[int(cluster_id)]:
         articles.append(key)
     return articles
 
@@ -193,7 +198,6 @@ def get_summaries(cluster_id, article):
     cluster = clusters[request.remote_addr]
     article_archive = cluster[article][3]
     summary_list = cluster_list[cluster_id][article_archive]
-    print(summary_list)
     return summary_list
 
 if __name__ == '__main__':

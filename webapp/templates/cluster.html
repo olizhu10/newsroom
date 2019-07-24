@@ -9,12 +9,12 @@
     return template.content.firstChild;
   }
 
-  function show_summary() {
-    document.querySelector('#summary-text').innerHTML = '{{summary_text | safe}}'
-  }
-
   function show_article() {
     document.querySelector('#article-text').innerHTML = '{{article_text | safe}}'
+  }
+
+  function show_summary() {
+    document.querySelector('#summary-text').innerHTML = '{{summary_text | safe}}'
   }
 
 </script>
@@ -63,7 +63,6 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <input type="submit" value="Submit"/>
     </form>
     {% endif %}
-
 </div>
 {% endblock %}
 
@@ -104,7 +103,6 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <div id="fragments">Fragments:
       {% for fragment in fragments %}
         {{fragment | safe}}
-        <!--<script type='text/javascript'>highlight("{{fragment}}",{{loop.index0}})</script>-->
       {% endfor %}
     </div>
     <p id="diffNames">Names in Summary not in Article: {{diffNames}}</p>
