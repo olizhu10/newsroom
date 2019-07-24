@@ -28,9 +28,13 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <p class="prompt">Select the article you wish to display.</p>
     <select name="article-select" id="article-select">
       {% for s in range(article_list|length) %}
-        {% if s == article %}
-          <option selected="selected" value= {{s}}>{{s}}</option>
-        {% else %}
+        {% if s == article%}
+          {% if article_list[s][3] in valid_article_list%}
+            <option selected="selected" value= {{s}}>{{s}}</option>
+          {% else %}
+            {% set article = article + 1 %}
+          {% endif %}
+        {% elif article_list[s][3] in valid_article_list%}
           <option value= {{s}}>{{s}}</option>
         {% endif %}
       {% endfor %}
