@@ -105,7 +105,6 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
         {{fragment | safe}}
       {% endfor %}
     </div>
-    <p id="diffNames">Names in Summary not in Article: {{diffNames}}</p>
     {% endif %}
     <form id="removeCluster" action="{{url_for('confirm',cluster_id=val)}}" target="_blank" method="POST">
       <input type="hidden" name="cid" value="{{val}}"/>

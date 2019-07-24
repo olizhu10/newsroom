@@ -145,12 +145,15 @@ def remove_cluster():
     if request.method == 'POST':
         cluster_id = request.form['cid']
         db.remove_cluster(cluster_id)
+        cluster_list[int(cluster_id)] = {}
+        with jsonl.open('../clustering/cluster_pairings.jsonl') as writeFile:
+            writeFile.write(cluster_list)
         message="Cluster Removed"
         return redirect(url_for('home',message=message))
 
 @app.route('/confirm/<int:cluster_id>', methods=['GET','POST'])
 def confirm(cluster_id):
-    return render_template('remove.html', cluster_id)
+    return render_template('remove.html', cluster_id = cluster_id)
 
 def dir_last_updated(folder):
     return str(max(os.path.getmtime(os.path.join(root_path, f))
