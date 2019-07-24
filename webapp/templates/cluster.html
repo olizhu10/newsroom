@@ -42,14 +42,18 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
     <input type="hidden" name="cid" value="{{val}}"/>
     <input type="submit" value="Submit"/><br>
     </form>
-    {% if summary_list %}
+    {% if valid_summary_list %}
     <form id="summary-form" action="/summary-select" method="POST">
     <p class="prompt">Select the summary you wish to display.</p>
     <select name="summary-select" id="summary-select">
-      {% for s in range(summary_list|length) %}
+      {% for s in range(article_list|length) %}
         {% if s == summary %}
-          <option selected="selected" value= {{s}}>{{s}}</option>
-        {% else %}
+          {% if article_list[s][3] in valid_summary_list%}
+            <option selected="selected" value= {{s}}>{{s}}</option>
+          {% else %}
+            {% set summary = summary + 1 %}
+          {% endif %}
+        {% elif article_list[s][3] in valid_summary_list %}
           <option value= {{s}}>{{s}}</option>
         {% endif %}
       {% endfor %}

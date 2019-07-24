@@ -54,9 +54,6 @@ def get_cluster(cluster_id):
     if cluster == []:
         message= "The cluster you searched for doesn't exist. Please select a new one."
         return redirect(url_for('home', cluster_id=cluster_id, message=message))
-    for art in cluster:
-        print(art[3])
-    print(get_articles(cluster_id))
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
         val=cluster_id, summary_text="No summary selected.", article_text="No article selected.",
         article_list=cluster, valid_article_list = get_articles(cluster_id))
@@ -91,7 +88,7 @@ def get_text_selected(cluster_id, article, summary):
         val=cluster_id, summary_text=json['annotation'][0], article_text=json['annotation'][1],
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], diffNames = nameDifferences(str(summary_text), str(article_text)),
-        summary=summary, article=article, summary_list=get_summaries(cluster_id,article),
+        summary=summary, article=article, valid_summary_list=get_summaries(cluster_id,article),
         article_list=cluster, valid_article_list = get_articles(cluster_id))
 
 @app.route('/cluster/<int:cluster_id>/<int:article>/', methods=['POST','GET'])
@@ -101,10 +98,10 @@ def get_text_unselected(cluster_id, article):
     except:
         clusters[request.remote_addr] = db.get_articles(cluster_id)
         cluster = clusters[request.remote_addr]
-    print(get_articles(cluster_id))
     return render_template('cluster.html', cluster=cluster, last_updated=dir_last_updated('static'),
-        val=cluster_id, article=article, summary_list=get_summaries(cluster_id,article),
-        article_list=cluster, valid_article_list = get_articles(cluster_id))
+        val=cluster_id, article=article,
+        article_list=cluster, valid_article_list = get_articles(cluster_id),
+        valid_summary_list = get_summaries(cluster_id, article))
 
 @app.route('/cdplot', methods=['POST'])
 def cd_plot():
@@ -187,7 +184,6 @@ def nameDifferences(summary, article):
     return diffList
 
 def get_articles(cluster_id):
-    cluster = clusters[request.remote_addr]
     articles = []
     for key in cluster_list[cluster_id]:
         articles.append(key)
@@ -195,10 +191,9 @@ def get_articles(cluster_id):
 
 def get_summaries(cluster_id, article):
     cluster = clusters[request.remote_addr]
-    print(article)
     article_archive = cluster[article][3]
-    print(article_archive)
     summary_list = cluster_list[cluster_id][article_archive]
+    print(summary_list)
     return summary_list
 
 if __name__ == '__main__':
