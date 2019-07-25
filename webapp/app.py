@@ -14,6 +14,8 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 import jsonl
+import rake
+from TextRank4Keyword import TextRank4Keyword
 #nltk.download("punkt")
 #nltk.download('averaged_perceptron_tagger')
 
@@ -95,7 +97,8 @@ def get_text_selected(cluster_id, article, summary):
         val=cluster_id, summary_text=json['annotation'][0], article_text=json['annotation'][1],
         density=json['density'], coverage=json['coverage'], compression=json['compression'],
         fragments=json['fragments'], summary=summary, article=article, valid_summary_list=get_summaries(cluster_id,article),
-        article_list=cluster, valid_article_list = get_articles(cluster_id))
+        article_list=cluster, valid_article_list = get_articles(cluster_id),
+        keywords=get_keywords(cluster_id,article))
 
 @app.route('/cluster/<int:cluster_id>/<int:article>/', methods=['POST','GET'])
 def get_text_unselected(cluster_id, article):
@@ -202,6 +205,14 @@ def get_summaries(cluster_id, article):
     article_archive = cluster[article][3]
     summary_list = cluster_list[cluster_id][article_archive]
     return summary_list
+
+def get_keywords(cluster_id, article):
+    cluster = clusters[request.remote_addr]
+    text = cluster[article][0]
+    tr4w = TextRank4Keyword()
+    tr4w.analyze(text)
+    return tr4w.get_keywords(10)
+
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug=True)
