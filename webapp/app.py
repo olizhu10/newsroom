@@ -5,7 +5,7 @@ import sqlite3
 import database as db
 from fragments import Fragments
 import os
-from plot import cdplot, complot
+from plot import cdplot, complot, article_cdplot, article_complot
 import random
 import io
 import base64
@@ -143,6 +143,35 @@ def make_plot(type, cluster_id):
     plot.clf()
     return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
+@app.route('/aplot', methods=['POST'])
+def article_plot():
+    if request.method == 'POST':
+        if sys.platform == 'darwin':
+            return '<p>Plots cannot be generated on Mac OS X. sorry :(</p>'
+        else:
+            cluster_id = request.form['cid']
+            article = request.form['article']
+            return redirect(url_for('make_aplot', cluster_id, article))
+
+@app.route('/cluster/<int:cluster_id>/<int:article>/plot', methods=['GET','POST'])
+def make_aplot(cluster_id, article):
+    cluster = clusters[request.remote_addr]
+    article_archive = cluster[article][3]
+    summary_list = get_summaries(cluster_id, article)
+    cdplot = article_cdplot(article, summary_list)
+    complot = article_complot(article, summary_list)
+    img1 = io.BytesIO()
+    cdplot.savefig(img1, bbox_inches='tight')
+    img1.seek(0)
+    plot_url1 = base64.b64encode(img1.getvalue()).decode()
+    img2 = io.BytesIO()
+    complot.savefig(img1, bbox_inches='tight')
+    img2.seek(0)
+    plot_url2 = base64.b64encode(img1.getvalue()).decode()
+    cdplot.clf()
+    complot.clf()
+    return '<img src="data:image/png;base64,{}">'.format(plot_url1), '<img src="data:image/png;base64,{}">'.format(plot_url2)
+
 @app.route('/remove', methods=['POST'])
 def remove_cluster():
     if request.method == 'POST':
@@ -212,7 +241,6 @@ def get_keywords(cluster_id, article):
     tr4w = TextRank4Keyword()
     tr4w.analyze(text)
     return tr4w.get_keywords(10)
-
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug=True)

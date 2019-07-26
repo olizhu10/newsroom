@@ -6,6 +6,9 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
+from goodSummaries import createDictionary
+
+dict = createDictionary()
 
 def get_colors():
     all_colors = list(mcolors.BASE_COLORS)
@@ -82,6 +85,42 @@ def complot(cluster):
         for obj in matrix[x]:
             compressions.append(obj.getCompression())
         plt.scatter([x]*len(compressions), compressions, marker='o', c=COLORS[x], label=title, alpha=0.6)
+    plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
+    return plt
+
+def article_cdplot(article, summary_list):
+    fig = plt.figure(figsize=(13,8))
+    fig.add_subplot(223)
+    plt.xlabel('coverage')
+    plt.ylabel('density')
+    coverages = []
+    densities = []
+    compressions = []
+    text = dict[article][1]
+    for s in summary_list:
+        summary = dict[s][0]
+        fragments = Fragments(summary, text)
+        coverages.append(fragments.coverage())
+        densities.append(fragments.density())
+        compressions.append(fragments.compression())
+    plt.scatter(coverages, densities, marker = 'o', label=title, alpha=0.6)
+    plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
+    return plt
+
+def article_complot(article, summary_list):
+    fig = plt.figure(figsize=(13,8))
+    fig.add_subplot(223)
+    plt.xlabel('summary')
+    plt.ylabel('compression')
+    compressions = []
+    text = dict[article][1]
+    for s in summary_list:
+        summary = dict[s][0]
+        fragments = Fragments(summary, text)
+        coverages.append(fragments.coverage())
+        densities.append(fragments.density())
+        compressions.append(fragments.compression())
+    plt.scatter([x]*len(compressions), compressions, marker='o', label=title, alpha=0.6)
     plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 
