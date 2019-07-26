@@ -37,7 +37,7 @@ def analyzeArticle(x):
         densities.append(fragments.density())
         coverages.append(fragments.coverage())
         compressions.append(fragments.compression())
-    return (densities, coverages, compressions)
+    return (x, (densities, coverages, compressions))
 def main():
     '''densityMeans = []
     densityStds = []
@@ -45,18 +45,11 @@ def main():
     coverageStds = []
     compressionMeans = []
     compressionStds = []'''
-    densityFile = open('../clustering/densities.csv', 'a')
-    compressionFile = open('../clustering/compressions.csv', 'a')
-    coverageFile = open('../clustering/coverages.csv', 'a')
-    densityWriter = csv.writer(densityFile)
-    compressionWriter = csv.writer(compressionFile)
-    coverageWriter = csv.writer(coverageFile)
+    values = {}
     pbar = tqdm(total=len(articleList), desc='Analyzing:')
     with Pool(processes=15) as pool:
         for results in pool.imap_unordered(analyzeArticle, range(len(articleList))):
-            densityWriter.writerow(results[0])
-            coverageWriter.writerow(results[1])
-            compressionWriter.writerow(results[2])
+            values[articleList[results[0]]] = results[1]
             '''densityMeans.append(mean(densities))
             compressionMeans.append(mean(compressions))
             coverageMeans.append(mean(coverages))
@@ -64,9 +57,8 @@ def main():
             compressionStds.append(stdev(compressions))
             coverageStds.append(stdev(coverages))'''
             pbar.update(1)
-    densityFile.close()
-    compressionFile.close()
-    coverageFile.close()
+    with open('../clustering/fragmentStats.json', 'w+') as file:
+        json.dump(values, file)
     '''print("Average Density Standard Deviation:" + str(mean(densityStds)))
     print("Average Compression Standard Deviation:" + str(mean(compressionStds)))
     print("Average Coverage Standard Deviation:" + str(mean(coverageStds)))'''
