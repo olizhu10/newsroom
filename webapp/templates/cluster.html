@@ -94,6 +94,7 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Create Compression plot" name="com-button"/>
     </form>
+    {% if article or (article == 0) %}
     <form id="articlecdplot" action="/acdplot" target="_blank" method="POST">
       <input type="hidden" name="article" value="{{article}}"/>
       <input type="hidden" name="cid" value="{{val}}"/>
@@ -104,7 +105,7 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Create article complot" name="a-button"/>
     </form>
-
+    {% endif %}
 
     <br>
     {% if summary or (summary == 0) %}
