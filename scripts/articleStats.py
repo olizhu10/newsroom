@@ -45,24 +45,25 @@ def main():
     coverageStds = []
     compressionMeans = []
     compressionStds = []'''
-    densityFile = open('densities.csv', 'a')
-    compressionFile = open('compressions.csv', 'a')
-    coverageFile = open('coverages.csv', 'a')
+    densityFile = open('../clustering/densities.csv', 'a')
+    compressionFile = open('../clustering/compressions.csv', 'a')
+    coverageFile = open('../clustering/coverages.csv', 'a')
     densityWriter = csv.writer(densityFile)
     compressionWriter = csv.writer(compressionFile)
     coverageWriter = csv.writer(coverageFile)
-    pbar = tqdm(total=len(articlelist), desc='Analyzing:')
-    for results in pool.imap_unordered(analyzeArticle, range(len(articleList))):
-        densityWriter.writerow(results[0])
-        coverageWriter.writerow(results[1])
-        compressionWriter.writerow(results[2])
-        '''densityMeans.append(mean(densities))
-        compressionMeans.append(mean(compressions))
-        coverageMeans.append(mean(coverages))
-        densityStds.append(stdev(densities))
-        compressionStds.append(stdev(compressions))
-        coverageStds.append(stdev(coverages))'''
-        pbar.update(1)
+    pbar = tqdm(total=len(articleList), desc='Analyzing:')
+    with Pool(processes=15) as pool:
+        for results in pool.imap_unordered(analyzeArticle, range(len(articleList))):
+            densityWriter.writerow(results[0])
+            coverageWriter.writerow(results[1])
+            compressionWriter.writerow(results[2])
+            '''densityMeans.append(mean(densities))
+            compressionMeans.append(mean(compressions))
+            coverageMeans.append(mean(coverages))
+            densityStds.append(stdev(densities))
+            compressionStds.append(stdev(compressions))
+            coverageStds.append(stdev(coverages))'''
+            pbar.update(1)
     densityFile.close()
     compressionFile.close()
     coverageFile.close()
