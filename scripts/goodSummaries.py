@@ -18,6 +18,8 @@ with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()
 
 def createDictionary():
+    """Creates dictionary for entire dataset with article archives as keys and
+    (summary, text) as values."""
     dict = {}
     pbar = tqdm(total=len(articles), desc='Generating Dictionary:')
     for article in articles:

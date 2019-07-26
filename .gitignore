@@ -7,6 +7,7 @@ env
 databaseRefined_0.9.db
 clustering/articleSummaryPairsMinLength.json
 clustering/cluster_pairings.jsonl
+webapp/databases
 <<<<<<< HEAD
 =======
 >>>>>>> 9348f449e3e62b3c149d7a263e692a9556ffc516
