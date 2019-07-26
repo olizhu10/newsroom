@@ -95,15 +95,13 @@ def article_cdplot(article, summary_list):
     plt.ylabel('density')
     coverages = []
     densities = []
-    compressions = []
     text = dict[article][1]
     for s in summary_list:
         summary = dict[s][0]
         fragments = Fragments(summary, text)
         coverages.append(fragments.coverage())
         densities.append(fragments.density())
-        compressions.append(fragments.compression())
-    plt.scatter(coverages, densities, marker = 'o', label=title, alpha=0.6)
+    plt.scatter(coverages, densities, marker = 'o', alpha=0.6)
     plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 
@@ -117,10 +115,8 @@ def article_complot(article, summary_list):
     for s in summary_list:
         summary = dict[s][0]
         fragments = Fragments(summary, text)
-        coverages.append(fragments.coverage())
-        densities.append(fragments.density())
         compressions.append(fragments.compression())
-    plt.scatter([x]*len(compressions), compressions, marker='o', label=title, alpha=0.6)
+    plt.scatter(range(len(compressions)), compressions, marker='o', alpha=0.6)
     plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 

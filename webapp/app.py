@@ -14,7 +14,6 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 import jsonl
-import rake
 from TextRank4Keyword import TextRank4Keyword
 #nltk.download("punkt")
 #nltk.download('averaged_perceptron_tagger')
@@ -143,34 +142,41 @@ def make_plot(type, cluster_id):
     plot.clf()
     return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
-@app.route('/aplot', methods=['POST'])
-def article_plot():
+@app.route('/acdplot', methods=['POST'])
+def articlecdplot():
     if request.method == 'POST':
         if sys.platform == 'darwin':
             return '<p>Plots cannot be generated on Mac OS X. sorry :(</p>'
         else:
             cluster_id = request.form['cid']
             article = request.form['article']
-            return redirect(url_for('make_aplot', cluster_id, article))
+            return redirect(url_for('make_aplot', cluster_id=cluster_id, article=article, type='cd'))
 
-@app.route('/cluster/<int:cluster_id>/<int:article>/plot', methods=['GET','POST'])
-def make_aplot(cluster_id, article):
+@app.route('/acomplot', methods=['POST'])
+def articlecomplot():
+    if request.method == 'POST':
+        if sys.platform == 'darwin':
+            return '<p>Plots cannot be generated on Mac OS X. sorry :(</p>'
+        else:
+            cluster_id = request.form['cid']
+            article = request.form['article']
+            return redirect(url_for('make_aplot', cluster_id=cluster_id, article=article, type='com'))
+
+@app.route('/plot/<int:cluster_id>/<int:article>/<type>', methods=['GET','POST'])
+def make_aplot(cluster_id, article, type):
     cluster = clusters[request.remote_addr]
     article_archive = cluster[article][3]
     summary_list = get_summaries(cluster_id, article)
-    cdplot = article_cdplot(article, summary_list)
-    complot = article_complot(article, summary_list)
-    img1 = io.BytesIO()
-    cdplot.savefig(img1, bbox_inches='tight')
-    img1.seek(0)
-    plot_url1 = base64.b64encode(img1.getvalue()).decode()
-    img2 = io.BytesIO()
-    complot.savefig(img1, bbox_inches='tight')
-    img2.seek(0)
-    plot_url2 = base64.b64encode(img1.getvalue()).decode()
-    cdplot.clf()
-    complot.clf()
-    return '<img src="data:image/png;base64,{}">'.format(plot_url1), '<img src="data:image/png;base64,{}">'.format(plot_url2)
+    if type == 'cd':
+        plot = article_cdplot(article_archive, summary_list)
+    else:
+        plot = article_complot(article_archive, summary_list)
+    img = io.BytesIO()
+    plot.savefig(img, bbox_inches='tight')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    plot.clf()
+    return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
 @app.route('/remove', methods=['POST'])
 def remove_cluster():

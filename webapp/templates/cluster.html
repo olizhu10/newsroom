@@ -94,10 +94,15 @@ Cluster index: <input type="text" name="cluster" value={{val}} />
       <input type="hidden" name="cid" value="{{val}}"/>
       <input type="submit" value="Create Compression plot" name="com-button"/>
     </form>
-    <form id="articleplot" action="/aplot" target="_blank" method="POST">
+    <form id="articlecdplot" action="/acdplot" target="_blank" method="POST">
       <input type="hidden" name="article" value="{{article}}"/>
       <input type="hidden" name="cid" value="{{val}}"/>
-      <input type="submit" value="Create article plot" name="a-button"/>
+      <input type="submit" value="Create article cdplot" name="a-button"/>
+    </form>
+    <form id="articlecomplot" action="/acomplot" target="_blank" method="POST">
+      <input type="hidden" name="article" value="{{article}}"/>
+      <input type="hidden" name="cid" value="{{val}}"/>
+      <input type="submit" value="Create article complot" name="a-button"/>
     </form>
 
 
