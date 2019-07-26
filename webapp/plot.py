@@ -93,15 +93,13 @@ def article_cdplot(article, summary_list):
     fig.add_subplot(223)
     plt.xlabel('coverage')
     plt.ylabel('density')
-    coverages = []
-    densities = []
     text = dict[article][1]
-    for s in summary_list:
+    for i, s in enumerate(summary_list):
         summary = dict[s][0]
         fragments = Fragments(summary, text)
-        coverages.append(fragments.coverage())
-        densities.append(fragments.density())
-    plt.scatter(coverages, densities, marker = 'o', alpha=0.6)
+        coverage = [fragments.coverage()]
+        density = [fragments.density()]
+        plt.scatter(coverage, density, marker = 'o', c=COLORS[i], label=s, alpha=0.6)
     plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 
@@ -110,14 +108,13 @@ def article_complot(article, summary_list):
     fig.add_subplot(223)
     plt.xlabel('summary')
     plt.ylabel('compression')
-    compressions = []
     text = dict[article][1]
-    for s in summary_list:
+    for i, s in enumerate(summary_list):
         summary = dict[s][0]
         fragments = Fragments(summary, text)
-        compressions.append(fragments.compression())
-    plt.scatter(range(len(compressions)), compressions, marker='o', alpha=0.6)
-    plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
+        compression = [fragments.compression()]
+        plt.scatter(i, compression, marker='o', c=COLORS[i], label=s, alpha=0.6)
+        plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.)
     return plt
 
 class ASData(object):
