@@ -27,9 +27,9 @@ for article in pairs:
 print("Dictionary Created")
 
 def analyzeArticle(x):
-    compressions = [articleList[x]]
-    densities = [articleList[x]]
-    coverages = [articleList[x]]
+    compressions = []
+    densities = []
+    coverages = []
     text = dict[articleList[x]][1]
     for summary in pairs[articleList[x]]:
         summary_text = dict[summary][0]
@@ -39,29 +39,14 @@ def analyzeArticle(x):
         compressions.append(fragments.compression())
     return (x, (densities, coverages, compressions))
 def main():
-    '''densityMeans = []
-    densityStds = []
-    coverageMeans = []
-    coverageStds = []
-    compressionMeans = []
-    compressionStds = []'''
     values = {}
     pbar = tqdm(total=len(articleList), desc='Analyzing:')
     with Pool(processes=15) as pool:
         for results in pool.imap_unordered(analyzeArticle, range(len(articleList))):
             values[articleList[results[0]]] = results[1]
-            '''densityMeans.append(mean(densities))
-            compressionMeans.append(mean(compressions))
-            coverageMeans.append(mean(coverages))
-            densityStds.append(stdev(densities))
-            compressionStds.append(stdev(compressions))
-            coverageStds.append(stdev(coverages))'''
             pbar.update(1)
     with open('../clustering/fragmentStats.json', 'w+') as file:
         json.dump(values, file)
-    '''print("Average Density Standard Deviation:" + str(mean(densityStds)))
-    print("Average Compression Standard Deviation:" + str(mean(compressionStds)))
-    print("Average Coverage Standard Deviation:" + str(mean(coverageStds)))'''
 
 if __name__ == '__main__':
     main()
