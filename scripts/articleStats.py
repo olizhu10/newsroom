@@ -12,7 +12,7 @@ File is formatted as a dictionary with article archive as key and tuple
 (density, coverage, compression) as value.
 """
 
-with open('../clustering/articleSummaryPairsMinLength.json', 'r') as file:
+with open('../clustering/articleSummaryPairsFinal.json', 'r') as file:
     pairs = json.load(file)
 print("Pairs Loaded")
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
