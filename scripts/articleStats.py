@@ -5,7 +5,7 @@ import csv
 from tqdm import tqdm
 from multiprocessing import Pool
 import jsonl
-with open('../clustering/articleSummaryPairsMinLength.json', 'r') as file:
+with open('../clustering/articleSummaryPairsFinal.json', 'r') as file:
     pairs = json.load(file)
 print("Pairs Loaded")
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
