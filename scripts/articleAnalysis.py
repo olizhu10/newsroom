@@ -5,6 +5,11 @@ import csv
 from tqdm import tqdm
 from multiprocessing import Pool
 import jsonl
+
+"""
+Prints statistics for densities, coverages and compressions of the articles.
+"""
+
 with open('../clustering/fragmentStats.json', 'r') as file:
     articles = json.load(file)
 

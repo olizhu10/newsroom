@@ -1,6 +1,10 @@
 import jsonl
 import numpy as np
 
+"""
+Prints statistics for the number of summaries per article
+"""
+
 with jsonl.open('../clustering/cluster_pairings.jsonl') as f:
     cluster_list = f.read()
 
