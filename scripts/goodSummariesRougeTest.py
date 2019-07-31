@@ -75,10 +75,10 @@ def analyzeCluster(x):
     fp = 0
     fn = 0
     for article in clusters[x]:
-        if(len(preprocess(dict[article][1]))>=50 and len(preprocess(dict[article][0]))>=5):
-            articleList.append(dict[article][1])
-            summaryList.append(dict[article][0])
-            summaryWMDList.append(nlp(dict[article][1]))
+        #if(len(preprocess(dict[article][1]))>=50 and len(preprocess(dict[article][0]))>=5):
+        articleList.append(dict[article][1])
+        summaryList.append(dict[article][0])
+        summaryWMDList.append(nlp(dict[article][1]))
     articleList = fullListList(articleList)
     summaryList = namesListList(summaryList)
     for aIndex, article in enumerate(articleList, start = 0):
