@@ -81,18 +81,17 @@ def analyzeCluster(x):
 def main():
     articleDict = {}
     pbar = tqdm(total=len(clusters), desc='Going through Clusters:')
-    count = 0
-    qbar = tqdm(total=70000, desc='Good articles found with >=4 summaries:')
     with Pool(processes=15) as pool:
         for smallDict in pool.imap_unordered(analyzeCluster, range(len(clusters))):
             for key in smallDict:
                 if key in articleDict:
-                    count+=1
+                    for summary in smallDict[key]:
+                        if not summary in articleDict[key]:
+                            articleDict[key].append(summary)
                 else:
                     articleDict[key] = smallDict[key]
-                    qbar.update(1)
             pbar.update(1)
-    print(count)
-
+    with open('../clustering/articleSummaryPairsFinal.json', 'w+') as file:
+        json.dump(articleDict, file)
 if __name__ == '__main__':
     main()

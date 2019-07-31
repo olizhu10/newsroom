@@ -5,7 +5,14 @@ import csv
 from tqdm import tqdm
 from multiprocessing import Pool
 import jsonl
-with open('../clustering/articleSummaryPairsMinLength.json', 'r') as file:
+
+"""
+Creates file with fragment stats for each article
+File is formatted as a dictionary with article archive as key and tuple
+(density, coverage, compression) as value.
+"""
+
+with open('../clustering/articleSummaryPairsFinal.json', 'r') as file:
     pairs = json.load(file)
 print("Pairs Loaded")
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:

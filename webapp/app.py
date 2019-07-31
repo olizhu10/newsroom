@@ -45,6 +45,8 @@ def search():
 def random_cluster():
     if request.method == 'POST':
         cluster_id = random.randint(0,13487)
+        while cluster_list[cluster_id] == {}:
+            cluster_id = random.randint(0,13487)
         article_list = get_articles(cluster_id)
         if article_list == []:
             message = "This cluster is empty. Please select a new one."

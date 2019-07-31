@@ -9,11 +9,9 @@ def read_clusters():
     count = 0
     num = 0
     for cluster in clusters:
-        num += len(cluster)
-        #print('cluster '+str(count)+':')
-        pp.pprint(cluster)
+        num += len(list(cluster.keys()))
         count += 1
-    #print(num)
+    print(num)
 
 if __name__ == '__main__':
     read_clusters()
