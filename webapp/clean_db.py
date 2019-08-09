@@ -1,6 +1,7 @@
 import sqlite3
 
 def clean_articles(cluster_id):
+    """cleans the articles from a certain cluster in the database in accordance to size"""
     db = sqlite3.connect('database.db')
     c = db.cursor()
     q = "SELECT text, archive FROM articles WHERE cluster=?"

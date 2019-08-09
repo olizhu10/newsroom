@@ -18,6 +18,7 @@ with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()
 
 def createDictionary():
+    '''creates a dictionary mapping the archive link to (summary, text) tuple'''
     dict = {}
     pbar = tqdm(total=len(articles), desc='Generating Dictionary:')
     for article in articles:
@@ -26,6 +27,7 @@ def createDictionary():
     return dict
 
 def main():
+    '''prints the good article summary pairs which are left'''
     dict = createDictionary()
     for article in articleListing:
         for summary in articleListing[article]:

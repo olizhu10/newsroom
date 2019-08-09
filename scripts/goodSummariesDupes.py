@@ -11,7 +11,7 @@ def preprocess(sent):
     sent = nltk.word_tokenize(sent)
     sent = nltk.pos_tag(sent)
     return sent
-
+'''merges duplicate articles from different clusters now'''
 with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
     clusters = f.read()
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:

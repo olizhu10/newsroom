@@ -28,6 +28,7 @@ def createDictionary():
     return dict
 
 def namesList(sentence):
+    """Creates a list of names from a sentence"""
     nList = []
     for word in preprocess(sentence):
         if word[1]=="NNP":
@@ -35,11 +36,14 @@ def namesList(sentence):
     return nList
 
 def fullList(sentence):
+    """Creates a list of words from a sentence"""
     nList = []
     for word in preprocess(sentence):
         nList.append(word[0].lower())
     return nList
 def nameDifferences(summaryList, articleList):
+    """gets the differences between two lists of words, the ones which are
+    in the first list but not the second"""
     diffList = []
     for word in summaryList:
         if not (word in articleList):
@@ -47,12 +51,14 @@ def nameDifferences(summaryList, articleList):
     return True
 
 def namesListList(list):
+    """gets a list of name lists from a list of sentences"""
     nList = []
     for sentence in list:
         nList.append(namesList(sentence))
     return nList
 
 def fullListList(list):
+    """gets a list of words lists from a list of sentences"""
     nList = []
     for sentence in list:
         nList.append(fullList(sentence))
@@ -60,6 +66,8 @@ def fullListList(list):
 
 dict = createDictionary()
 def analyzeCluster(x):
+    """gets a dictionary of possible article summary pairings from the x index
+    cluster"""
     smallDict = {}
     articleList = []
     summaryList = []

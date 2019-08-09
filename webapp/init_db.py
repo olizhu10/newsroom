@@ -13,7 +13,9 @@ with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()
 
+
 def createDictionary():
+    """creates dictionary with relates an article to its respective cluster indices"""
     dict = {}
     pbar = tqdm(total=len(clusters), desc='Generating Dictionary:')
     for clusterInd in range(len(clusters)):
