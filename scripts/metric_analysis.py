@@ -79,8 +79,8 @@ def threshold_chart(cluster, score_matrix, thresholds):
         for threshold in thresholds:
             tm = threshold_matrix(threshold, score_matrix)
             TP, FP, TN, FN = find_pos_neg(true_matrices[cluster], tm)
-            p = precision(TP,FP,TN,FN)
-            r = recall(TP,FP,TN,FN)
+            p = precision(TP,FP)
+            r = recall(TP,FN)
             writer.writerow([threshold,TP,FP,TN,FN,p,r])
 
 def main():
@@ -92,8 +92,7 @@ def main():
         precision_recall_curve(key, wmd(clusters[key]))
 
 def full_data():
-
-    thresholds = thresholds = [0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96,0.98,1.0]
+    thresholds = [0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96,0.98,1.0]
     precisions = []
     recalls = []
     with open('../data/wmd_threshold_full_close.csv', 'w+') as csvfile:
@@ -111,9 +110,9 @@ def full_data():
                 FPs += FP
                 TNs += TN
                 FNs += FN
-            p = precision(TP,FP,TN,FN)
+            p = precision(TPs,FPs)
             precisions.append(p)
-            r = recall(TP,FP,TN,FN)
+            r = recall(TPs,FNs)
             recalls.append(r)
             writer.writerow([threshold,TPs,FPs,TNs,FNs,p,r])
     plt.xlabel('recall')
@@ -212,4 +211,4 @@ clusters = {
 ]}
 
 if __name__ == '__main__':
-    print(threshold_matrix(0.88, wmd(clusters['orlando'])))
+    full_data()
