@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 from goodSummaries import analyzeCluster, createDictionary
 import json
+
 def preprocess(sent):
     sent = nltk.word_tokenize(sent)
     sent = nltk.pos_tag(sent)

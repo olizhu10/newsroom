@@ -7,15 +7,17 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 import json
-def preprocess(sent):
-    sent = nltk.word_tokenize(sent)
-    sent = nltk.pos_tag(sent)
-    return sent
-'''merges duplicate articles from different clusters now'''
+
+"""merges duplicate articles from different clusters now"""
 with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
     clusters = f.read()
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()
+
+def preprocess(sent):
+    sent = nltk.word_tokenize(sent)
+    sent = nltk.pos_tag(sent)
+    return sent
 
 def createDictionary():
     """Creates dictionary for entire dataset with article archives as keys and
@@ -39,6 +41,7 @@ def fullList(sentence):
     for word in preprocess(sentence):
         nList.append(word[0].lower())
     return nList
+
 def nameDifferences(summaryList, articleList):
     diffList = []
     for word in summaryList:
@@ -91,7 +94,9 @@ def main():
                 else:
                     articleDict[key] = smallDict[key]
             pbar.update(1)
+            
     with open('../clustering/articleSummaryPairsFinal.json', 'w+') as file:
         json.dump(articleDict, file)
+
 if __name__ == '__main__':
     main()

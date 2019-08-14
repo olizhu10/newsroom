@@ -12,10 +12,12 @@ import wmd
 
 nlp = spacy.load('en', create_pipeline=wmd.WMD.create_spacy_pipeline)
 #nlp = spacy.load('en_core_web_lg')
+
 def preprocess(sent):
     sent = nltk.word_tokenize(sent)
     sent = nltk.pos_tag(sent)
     return sent
+
 '''includes a WMD boundary'''
 with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
     clusters = f.read()
@@ -44,6 +46,7 @@ def fullList(sentence):
     for word in preprocess(sentence):
         nList.append(word[0].lower())
     return nList
+
 def nameDifferences(summaryList, articleList):
     diffList = []
     for word in summaryList:
@@ -104,5 +107,6 @@ def main():
     print(count)
     with open('../clustering/articleSummaryPairsWMDShave.json', 'w+') as file:
         json.dump(articleDict, file)
+
 if __name__ == '__main__':
     main()

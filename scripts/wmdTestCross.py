@@ -2,7 +2,7 @@ import spacy
 import wmd
 from rouge import Rouge
 '''used in conjunction with Template excel file, the results of this, which is
- found in rougeWMD.txt in the same forlder, get pasted in
+ found in rougeWMD.txt in the same folder, get pasted in
 the first column as data'''
 nlp = spacy.load('en', create_pipeline=wmd.WMD.create_spacy_pipeline)
 

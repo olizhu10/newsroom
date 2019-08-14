@@ -6,6 +6,7 @@ databaseRefined_0.9.db
 webapp/databases
 clustering/cluster_pairings.jsonl
 clustering/identifier.json
+clustering/articleSummaryPairsFinal.json
 <<<<<<< HEAD
 =======
 >>>>>>> 9348f449e3e62b3c149d7a263e692a9556ffc516

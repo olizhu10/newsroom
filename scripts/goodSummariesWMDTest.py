@@ -12,16 +12,18 @@ import wmd
 
 nlp = spacy.load('en', create_pipeline=wmd.WMD.create_spacy_pipeline)
 #nlp = spacy.load('en_core_web_lg')
+
 thresholds = [0.65]
-def preprocess(sent):
-    sent = nltk.word_tokenize(sent)
-    sent = nltk.pos_tag(sent)
-    return sent
 
 with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
     clusters = f.read()
 with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
     articles = ds.read()
+
+def preprocess(sent):
+    sent = nltk.word_tokenize(sent)
+    sent = nltk.pos_tag(sent)
+    return sent
 
 def createDictionary():
     """Creates dictionary for entire dataset with article archives as keys and
@@ -45,6 +47,7 @@ def fullList(sentence):
     for word in preprocess(sentence):
         nList.append(word[0].lower())
     return nList
+    
 def nameDifferences(summaryList, articleList):
     diffList = []
     for word in summaryList:
