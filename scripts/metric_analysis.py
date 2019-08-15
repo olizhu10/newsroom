@@ -59,6 +59,7 @@ def F1(precision, recall):
     return 2*((precision*recall)/(precision+recall))
 
 def precision_recall_curve(cluster, score_matrix, thresholds, name):
+    """Creates precision-recall curve and saves it to the data folder"""
     precisions = []
     recalls = []
     for threshold in thresholds:
@@ -74,6 +75,9 @@ def precision_recall_curve(cluster, score_matrix, thresholds, name):
     plt.savefig('../data/'+name+'_prcurve_'+cluster+'.png')
 
 def threshold_chart(cluster, score_matrix, thresholds, name):
+    """Creates a csv file that has the TP, FP, TN, FN, precision and recall values
+    for each threshold. Saves to data folder."""
+    
     with open('../data/'+name+'_threshold_'+cluster+'.csv', 'w+') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(['threshold','TP','FP','TN','FN','precision','recall'])

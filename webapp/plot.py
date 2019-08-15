@@ -8,7 +8,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 from goodSummaries import createDictionary
 
-dict = createDictionary()
+
 
 def get_colors():
     all_colors = list(mcolors.BASE_COLORS)

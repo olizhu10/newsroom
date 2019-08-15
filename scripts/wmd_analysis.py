@@ -3,7 +3,6 @@ import spacy
 import wmd
 import csv
 
-
 nlp = spacy.load('en_core_web_lg', create_pipeline=wmd.WMD.create_spacy_pipeline)
 
 def wmd(cluster):
@@ -16,8 +15,6 @@ def wmd(cluster):
             wmd_scores.append(doc1.similarity(doc2))
         matrix.append(wmd_scores)
     return matrix
-
-
 
 def main():
     for key in clusters:

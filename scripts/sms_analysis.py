@@ -4,7 +4,7 @@ import pprint
 
 def write_file():
     for key in clusters:
-        with open('sms_input_'+key+'.tsv', 'w+') as tsvfile:
+        with open('../data/sms_input_'+key+'.tsv', 'w+') as tsvfile:
             writer = csv.writer(tsvfile, delimiter='\t')
             for summary1 in clusters[key]:
                 for summary2 in clusters[key]:
@@ -13,7 +13,7 @@ def write_file():
 
 def wsms(key):
     matrix = []
-    with open('sms_input_'+key+'_glove_s+wms.out') as f:
+    with open('../data/sms_input_'+key+'_glove_s+wms.out') as f:
         reader = list(csv.reader(f, delimiter='\t'))
         line = 2
         for summary in range(len(clusters[key])):

@@ -7,17 +7,13 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 import json
+
 def preprocess(sent):
     sent = nltk.word_tokenize(sent)
     sent = nltk.pos_tag(sent)
     return sent
 
-with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
-    clusters = f.read()
-with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
-    articles = ds.read()
-
-def createDictionary():
+def createDictionary(articles):
     """Creates dictionary for entire dataset with article archives as keys and
     (summary, text) as values."""
     dict = {}
@@ -64,7 +60,6 @@ def fullListList(list):
         nList.append(fullList(sentence))
     return nList
 
-dict = createDictionary()
 def analyzeCluster(x):
     """gets a dictionary of possible article summary pairings from the x index
     cluster"""
@@ -87,6 +82,12 @@ def analyzeCluster(x):
     return smallDict
 
 def main():
+    with jsonl.open('../clustering/final_clusters_cleaned0.9_2.jsonl') as f:
+        clusters = f.read()
+    with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
+        articles = ds.read()
+
+    dict = createDictionary(articles)
     articleDict = {}
     pbar = tqdm(total=len(clusters), desc='Going through Clusters:')
     qbar = tqdm(total=70000, desc='Good articles found with >=4 summaries:')
