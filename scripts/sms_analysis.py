@@ -19,7 +19,7 @@ def wsms(key):
         for summary in range(len(clusters[key])):
             scores = []
             for x in range(len(clusters[key])):
-                scores.append(reader[line][3])
+                scores.append(float(reader[line][3]))
                 line += 1
             matrix.append(scores)
     return matrix
@@ -31,8 +31,6 @@ def main():
             writer = csv.writer(csvfile, delimiter=',')
             for row in matrix:
                 writer.writerow(row)
-
-
 
 clusters = {
 'sandy':[

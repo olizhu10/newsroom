@@ -84,29 +84,14 @@ def threshold_chart(cluster, score_matrix, thresholds, name):
             r = recall(TP,FN)
             writer.writerow([threshold,TP,FP,TN,FN,p,r])
 
-def sample_data():
-    thresholds = np.linspace(0,1,21)
-    #thresholds = [0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96,0.98,1.0]
-    for key in clusters:
-        matrix1, matrix2, matrixl = rouge(clusters[key])
-        threshold_chart(key, matrix1, thresholds, 'rouge1')
-        threshold_chart(key, matrix2, thresholds, 'rouge2')
-        threshold_chart(key, matrixl, thresholds, 'rougel')
-        plt.clf()
-        precision_recall_curve(key, matrix1, thresholds, 'rouge1')
-        plt.clf()
-        precision_recall_curve(key, matrix2, thresholds, 'rouge2')
-        plt.clf()
-        precision_recall_curve(key, matrixl, thresholds, 'rougel')
-
-
-def full_data():
+def main():
     plt.clf()
-    thresholds = np.linspace(0,0.5,11)
+    #thresholds = np.linspace(0,1,21)
+    thresholds = [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09, 0.1]
     #thresholds = [0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96,0.98,1.0]
     precisions = []
     recalls = []
-    with open('../data/rougel_threshold_full_close.csv', 'w+') as csvfile: #switch here
+    with open('../data/wsms_threshold_full_close.csv', 'w+') as csvfile: #switch here
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(['threshold','TP','FP','TN','FN','precision','recall'])
         for threshold in thresholds:
@@ -115,8 +100,8 @@ def full_data():
             TNs = 0
             FNs = 0
             for key in clusters:
-                matrix1, matrix2, matrixl = rouge(clusters[key])
-                tm = threshold_matrix(threshold, matrixl) #switch here
+                matrix = wsms(key)
+                tm = threshold_matrix(threshold, matrix) #switch here
                 TP, FP, TN, FN = find_pos_neg(true_matrices[key], tm)
                 TPs += TP
                 FPs += FP
@@ -130,37 +115,7 @@ def full_data():
     plt.xlabel('recall')
     plt.ylabel('precision')
     plt.plot(recalls, precisions)
-    plt.savefig('../data/rougel_full_prcurve_close.png') #switch here
-
-    plt.clf()
-    thresholds = np.linspace(0,1,21)
-    precisions = []
-    recalls = []
-    with open('../data/rougel_threshold_full.csv', 'w+') as csvfile: #switch here
-        writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(['threshold','TP','FP','TN','FN','precision','recall'])
-        for threshold in thresholds:
-            TPs = 0
-            FPs = 0
-            TNs = 0
-            FNs = 0
-            for key in clusters:
-                matrix1, matrix2, matrixl = rouge(clusters[key])
-                tm = threshold_matrix(threshold, matrixl) #switch here
-                TP, FP, TN, FN = find_pos_neg(true_matrices[key], tm)
-                TPs += TP
-                FPs += FP
-                TNs += TN
-                FNs += FN
-            p = precision(TPs,FPs)
-            precisions.append(p)
-            r = recall(TPs,FNs)
-            recalls.append(r)
-            writer.writerow([threshold,TPs,FPs,TNs,FNs,p,r])
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-    plt.plot(recalls, precisions)
-    plt.savefig('../data/rougel_full_prcurve.png') #switch here
+    plt.savefig('../data/wsms_full_prcurve_close.png') #switch here
 
 true_matrices = {
 'sandy':[
@@ -253,4 +208,4 @@ clusters = {
 ]}
 
 if __name__ == '__main__':
-    full_data()
+    main()
