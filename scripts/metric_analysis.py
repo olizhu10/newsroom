@@ -1,12 +1,14 @@
-from tqdm import tqdm
 import csv
-from wmd_analysis import wmd
+import sys
 import matplotlib
 matplotlib.use('PS')
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn import metrics
+from tqdm import tqdm
 from rouge_analysis import rouge
 from sms_analysis import wsms
+from wmd_analysis import wmd
 
 def find_pos_neg(pos_matrix, threshold_matrix):
     """Returns the number of true positives, false positives, true negatives, and false negatives."""
@@ -77,7 +79,7 @@ def precision_recall_curve(cluster, score_matrix, thresholds, name):
 def threshold_chart(cluster, score_matrix, thresholds, name):
     """Creates a csv file that has the TP, FP, TN, FN, precision and recall values
     for each threshold. Saves to data folder."""
-    
+
     with open('../data/'+name+'_threshold_'+cluster+'.csv', 'w+') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(['threshold','TP','FP','TN','FN','precision','recall'])
@@ -88,14 +90,15 @@ def threshold_chart(cluster, score_matrix, thresholds, name):
             r = recall(TP,FN)
             writer.writerow([threshold,TP,FP,TN,FN,p,r])
 
-def main():
+def main(metric):
     plt.clf()
     #thresholds = np.linspace(0,1,21)
-    thresholds = [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09, 0.1]
+    thresholds = np.linspace(0,0.5,11)
+    #thresholds = [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09, 0.1]
     #thresholds = [0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96,0.98,1.0]
     precisions = []
     recalls = []
-    with open('../data/wsms_threshold_full_close.csv', 'w+') as csvfile: #switch here
+    with open('../data/'+metric+'_threshold_full.csv', 'w+') as csvfile: #switch here
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(['threshold','TP','FP','TN','FN','precision','recall'])
         for threshold in thresholds:
@@ -104,8 +107,17 @@ def main():
             TNs = 0
             FNs = 0
             for key in clusters:
-                matrix = wsms(key)
-                tm = threshold_matrix(threshold, matrix) #switch here
+                if metric == 'wsms':
+                    matrix = wsms(key)
+                elif metric == 'rouge1':
+                    matrix, a, b = rouge(clusters[key])
+                elif metric == 'rouge2':
+                    a, matrix, b = rouge(clusters[key])
+                elif metric == 'rougel':
+                    a, b, matrix = rouge(clusters[key])
+                else: # metric == 'wmd':
+                    matrix = wmd(clusters[key])
+                tm = threshold_matrix(threshold, matrix)
                 TP, FP, TN, FN = find_pos_neg(true_matrices[key], tm)
                 TPs += TP
                 FPs += FP
@@ -116,10 +128,13 @@ def main():
             r = recall(TPs,FNs)
             recalls.append(r)
             writer.writerow([threshold,TPs,FPs,TNs,FNs,p,r])
+    plt.title(metric)
     plt.xlabel('recall')
     plt.ylabel('precision')
     plt.plot(recalls, precisions)
-    plt.savefig('../data/wsms_full_prcurve_close.png') #switch here
+    plt.text(1.5,1, str(metrics.auc(recalls, precisions)))
+    plt.savefig('../data/'+metric+'_full_prcurve.png') #switch here
+    print(metrics.auc(recalls, precisions))
 
 true_matrices = {
 'sandy':[
@@ -212,4 +227,6 @@ clusters = {
 ]}
 
 if __name__ == '__main__':
-    main()
+    metric = sys.argv[1]
+    assert metric in ['wsms','wmd','rouge1','rouge2','rougel'], 'You did not enter a valid metric.'
+    main(metric)
