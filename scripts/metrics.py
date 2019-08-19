@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import numpy as np
 
+"""
+Creates plots to view coverage, density, and compression data of article-summary
+pairs in a cluster.
+"""
 def data_matrix(event):
     """Creates matrix of article-summary pairs stored as ASData objects"""
 
@@ -137,4 +141,4 @@ def complot(matrix):
 
 if __name__ == '__main__':
     event = input('event: ')
-    complot(data_matrix()
+    complot(data_matrix())

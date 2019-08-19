@@ -18,6 +18,12 @@ from gensim.models import TfidfModel
 from gensim.corpora import Dictionary
 from tqdm import tqdm
 
+"""
+Merges clusters of the same event together by clustering the clusters using DBSCAN
+with average TF-IDF scores of the articles in the cluster as the metric.
+Outputs merged clusters into a final_clusters.jsonl file in the clustering folder.
+To run [python3 merge.py]
+"""
 
 def average(window1, window2, window3, w1length, w2length, w3length, identifier):
     totalWords = 1780255

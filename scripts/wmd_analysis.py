@@ -3,6 +3,8 @@ import spacy
 import wmd
 import csv
 
+"""Creates a csv file with wmd scores between summaries in a cluster"""
+
 nlp = spacy.load('en_core_web_lg', create_pipeline=wmd.WMD.create_spacy_pipeline)
 
 def wmd(cluster):

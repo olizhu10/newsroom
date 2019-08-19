@@ -2,6 +2,8 @@ import smd
 import csv
 import pprint
 
+"""Creates a csv file with w+sms scores between summaries in a cluster"""
+
 def write_file():
     for key in clusters:
         with open('../data/sms_input_'+key+'.tsv', 'w+') as tsvfile:

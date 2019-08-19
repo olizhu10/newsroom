@@ -1,6 +1,8 @@
 from rouge import Rouge
 import csv
 
+"""Creates a csv file with rouge scores between summaries in a cluster"""
+
 def rouge(cluster):
     matrix1 = []
     matrix2 = []

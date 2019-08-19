@@ -13,6 +13,14 @@ import matplotlib.pyplot as plt
 from scipy.sparse import *
 from scipy import *
 
+"""
+Clusters the data using DBSCAN. Uses TF-IDF as metric to base clusters on.
+Outputs file into clustering folder as a clusters.jsonl file.
+To cluster data, run [python3 clusters.py e] with e as the epsilon you wish to use
+for clustering.
+"""
+
+
 def window(data, start, end):
     """
     Returns set of article archives within specified start and end time.
@@ -73,6 +81,8 @@ def update_time(original, add):
     return str(new_year)+str(new_month)+str(new_day)+'000000'
 
 def eps(dataset):
+    """Plots the nearest neighbors to find an optimal epsilon value for DBSCAN"""
+
     ns = 4
     nbrs = NearestNeighbors(n_neighbors=ns).fit(dataset)
     distances, indices = nbrs.kneighbors(dataset)
@@ -83,6 +93,8 @@ def eps(dataset):
 
 
 def get_tfidf(archives, identifier):
+    """Returns a sparse matrix of the TF-IDF scores for each document to use for DBSCAN"""
+
     totalWords = 1780255
     dataList = []
     rowList = []
@@ -95,11 +107,20 @@ def get_tfidf(archives, identifier):
     return csr_matrix( (array(dataList),(array(rowList),array(colList))), shape=(len(archives), totalWords) )
 
 def cluster(matrix, e):
+    """Clusters the data using DBSCAN"""
+
     db = DBSCAN(eps=e, min_samples=4).fit(matrix)
 
     return db
 
 def group(labels, archives):
+    """
+    Groups the archives of the articles using the labels outputted from clustering.
+    The result is a dictionary with labels as keys and a list of archives in that cluster
+    as the value.
+    Outputs the dictionary into a jsonl file with each line a new cluster.
+    """
+
     fileName = '../clustering/clusters_0.9.jsonl'
     dict = {}
     with jsonl.open(fileName) as file:
@@ -113,6 +134,8 @@ def group(labels, archives):
         file.close()
 
 def print_clusters():
+    """Prints the clusters from a cluster jsonl file in clustering folder"""
+
     fileName = '../clustering/clusters.jsonl'
     pp = pprint.PrettyPrinter()
     dict = jsonl.read(fileName)
@@ -125,6 +148,8 @@ def print_clusters():
             pp.pprint(window[key])
 
 def cluster_sampling():
+    """Clusters sample data"""
+
     start = '20160610000000'
     end = update_time(start, 3)
     path = '../dataset_files/train.jsonl.gz'
@@ -177,4 +202,5 @@ def main(e):
         print(count)
 
 if __name__ == '__main__':
-    main(0.9)
+    e = sys.argv[1]
+    main(e)

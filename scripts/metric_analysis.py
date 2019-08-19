@@ -10,6 +10,13 @@ from rouge_analysis import rouge
 from sms_analysis import wsms
 from wmd_analysis import wmd
 
+"""
+Creates a csv file with data on the precision and recall of a given metric used
+for assessing one summary's ability to replace another.
+Also plots the precision-recall curve for the data.
+All data is stored in the data folder.
+"""
+
 def find_pos_neg(pos_matrix, threshold_matrix):
     """Returns the number of true positives, false positives, true negatives, and false negatives."""
 

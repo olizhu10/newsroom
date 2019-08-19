@@ -2,6 +2,11 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
+"""
+Plots a histogram and prints data based on human evaluation of clusters.
+Reads from a csv file
+"""
+
 def plot(array):
     print('plotting histogram for match percentages')
     print('close plot to see stats')

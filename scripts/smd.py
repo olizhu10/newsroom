@@ -218,9 +218,7 @@ def calc_smd(input_f, output_f=""):
 	return 'Done!'
 
 
-if __name__ == "__main__":
-	in_f = sys.argv[1]
-	[WORD_REP, METRIC] = sys.argv[2:4]
+def main(in_f):
 	word_rep_opt = ["glove", "elmo"]
 	metric_opt = ["wms", "sms", "s+wms"]
 	if (WORD_REP not in word_rep_opt) or (METRIC not in metric_opt):
@@ -233,3 +231,8 @@ if __name__ == "__main__":
 		MODEL = ElmoEmbedder()
 
 	calc_smd(in_f, out_f)
+
+if __name__ == '__main__':
+	in_f = sys.argv[1]
+	[WORD_REP, METRIC] = sys.argv[2:4]
+	main()

@@ -1,6 +1,6 @@
 import sqlite3
 
-DATABASE_NAME = 'databases/databaseRefined_0.9.db'
+DATABASE_NAME = '../databases/databaseRefined_0.9.db'
 
 def get_articles(cluster_id):
     db = sqlite3.connect(DATABASE_NAME)
