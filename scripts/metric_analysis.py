@@ -113,17 +113,17 @@ def main(metric):
             FPs = 0
             TNs = 0
             FNs = 0
-            for key in clusters:
+            for key in CLUSTERS:
                 if metric == 'wsms':
                     matrix = wsms(key)
                 elif metric == 'rouge1':
-                    matrix, a, b = rouge(clusters[key])
+                    matrix, a, b = rouge(CLUSTERS[key])
                 elif metric == 'rouge2':
-                    a, matrix, b = rouge(clusters[key])
+                    a, matrix, b = rouge(CLUSTERS[key])
                 elif metric == 'rougel':
-                    a, b, matrix = rouge(clusters[key])
+                    a, b, matrix = rouge(CLUSTERS[key])
                 else: # metric == 'wmd':
-                    matrix = wmd(clusters[key])
+                    matrix = wmd(CLUSTERS[key])
                 tm = threshold_matrix(threshold, matrix)
                 TP, FP, TN, FN = find_pos_neg(true_matrices[key], tm)
                 TPs += TP
@@ -188,7 +188,8 @@ true_matrices = {
     [1,1,0,1,1,1,1,1,1]
 ]}
 
-clusters = {
+
+CLUSTERS = {
 'sandy':[
 "After Sandy hit the East Coast Monday night, more than 2 million New Jersey residents were left without power and feeling powerless",
 "Superstorm Sandy crashed ashore this week, cutting a path of destruction several hundred miles long. Here are some numbers that help put it in perspective.",

@@ -12,8 +12,6 @@ from allennlp.commands.elmo import ElmoEmbedder
 
 stop_words = set(stopwords.words('english'))
 
-print("loading spacy")
-nlp = spacy.load('en_core_web_md')
 
 def tokenize_texts(inLines):
 
@@ -217,8 +215,13 @@ def calc_smd(input_f, output_f=""):
 
 	return 'Done!'
 
-
-def main(in_f):
+def main(in_f, word_rep, metric, model):
+	global WORD_REP
+	WORD_REP = word_rep
+	global METRIC
+	METRIC = metric
+	global nlp
+	nlp = model
 	word_rep_opt = ["glove", "elmo"]
 	metric_opt = ["wms", "sms", "s+wms"]
 	if (WORD_REP not in word_rep_opt) or (METRIC not in metric_opt):
@@ -232,7 +235,7 @@ def main(in_f):
 
 	calc_smd(in_f, out_f)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	in_f = sys.argv[1]
 	[WORD_REP, METRIC] = sys.argv[2:4]
 	main()

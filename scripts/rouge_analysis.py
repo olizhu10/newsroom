@@ -25,8 +25,8 @@ def rouge(cluster):
     return matrix1, matrix2, matrixl
 
 def main():
-    for key in clusters:
-        matrix1, matrix2, matrixl = rouge(clusters[key])
+    for key in CLUSTERS:
+        matrix1, matrix2, matrixl = rouge(CLUSTERS[key])
         with open('../data/rouge1_'+key+'.csv', 'w+') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             for row in matrix1:
@@ -43,8 +43,8 @@ def main():
 def sample_data():
     thresholds = np.linspace(0,1,21)
     #thresholds = [0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96,0.98,1.0]
-    for key in clusters:
-        matrix1, matrix2, matrixl = rouge(clusters[key])
+    for key in CLUSTERS:
+        matrix1, matrix2, matrixl = rouge(CLUSTERS[key])
         threshold_chart(key, matrix1, thresholds, 'rouge1')
         threshold_chart(key, matrix2, thresholds, 'rouge2')
         threshold_chart(key, matrixl, thresholds, 'rougel')
@@ -70,8 +70,8 @@ def full_data():
             FPs = 0
             TNs = 0
             FNs = 0
-            for key in clusters:
-                matrix1, matrix2, matrixl = rouge(clusters[key])
+            for key in CLUSTERS:
+                matrix1, matrix2, matrixl = rouge(CLUSTERS[key])
                 tm = threshold_matrix(threshold, matrixl) #switch here
                 TP, FP, TN, FN = find_pos_neg(true_matrices[key], tm)
                 TPs += TP
@@ -100,8 +100,8 @@ def full_data():
             FPs = 0
             TNs = 0
             FNs = 0
-            for key in clusters:
-                matrix1, matrix2, matrixl = rouge(clusters[key])
+            for key in CLUSTERS:
+                matrix1, matrix2, matrixl = rouge(CLUSTERS[key])
                 tm = threshold_matrix(threshold, matrixl) #switch here
                 TP, FP, TN, FN = find_pos_neg(true_matrices[key], tm)
                 TPs += TP
@@ -118,7 +118,7 @@ def full_data():
     plt.plot(recalls, precisions)
     plt.savefig('../data/rougel_full_prcurve.png') #switch here
 
-clusters = {
+CLUSTERS = {
 'sandy':[
 "After Sandy hit the East Coast Monday night, more than 2 million New Jersey residents were left without power and feeling powerless",
 "Superstorm Sandy crashed ashore this week, cutting a path of destruction several hundred miles long. Here are some numbers that help put it in perspective.",
