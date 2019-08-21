@@ -1,3 +1,4 @@
+import concurrent.futures
 import sqlite3
 import pprint
 import spacy
@@ -6,53 +7,44 @@ import json
 import csv
 import sys
 import os
+import numpy as np
 from tqdm import tqdm
 from rouge import Rouge
+from multiprocessing import Pool
 
-with open('../clustering/summary_dict.json') as dictfile:
-    summaryDict = json.load(dictfile)
+def removeSummaries(key):
+    threshold = 0.15
+    type='rouge-l'
+    summaries = articles[key]
+    summary_texts, ref_summary = getSummaryTexts(summaries, key)
+    cleaned_summaries = findGoodSummaries(ref_summary, summary_texts, threshold, type)
+    return cleaned_summaries, key
 
-def removeSummaries(threshold, type):
-    with jsonl.open('../clustering/cluster_pairings.jsonl') as f:
-        clusters = f.read()
-    print('opened pairing file')
-    cleaned_clusters = []
-    print('beginning cluster cleaning')
-    for cluster in tqdm(clusters, desc="clusters cleaned"):
-        cleaned_articles = []
-        for article in cluster:
-            summaries = cluster[article]
-            summary_texts = getSummaryTexts(summaries)
-            ref_summary = summaryDict[article]
-            cleaned_summaries = findGoodSummaries(ref_summary, summary_texts, threshold, type)
-            if len(cleaned_summaries) >= 2:
-                article_dict = {article: cleaned_summaries}
-                cleaned_articles.append(article_dict)
-        cleaned_clusters.append(cleaned_articles)
-    print('finished cluster cleaning')
-    with jsonl.open('../clustering/cluster_'+type+'_clean.jsonl') as outfile:
-        for c in tqdm(cleaned_clusters, desc='adding clusters to file'):
-            outfile.appendLine(c)
-    return cleaned_clusters
-
-def getSummaryTexts(summaries):
+def getSummaryTexts(summaries, article):
     texts = []
+    ref_summary = ""
     for summary in summaries:
-        texts.append(summaryDict[summary])
-    return texts
+        if summary == article:
+            ref_summary = summary_dict[summary]
+        if not summary in texts:
+            texts.append(summary_dict[summary])
+    return texts, ref_summary
 
 def summaryDict():
     texts = {}
-    db = sqlite3.connect('../databases/databaseRefined_0.9.db')
-    c = db.cursor()
-    q = 'SELECT summary, archive FROM articles'
-    c.execute(q)
-    summaries = c.fetchall()
+    with jsonl.open('../dataset_files/train.jsonl.gz', gzip=True) as ds:
+        articles = ds.read()
+
+    summaries = []
+    for article in articles:
+        summaries.append((article['summary'], article['archive']))
+
     for summary in tqdm(summaries, desc='summaries added'):
         try:
             texts[summary[1]]
         except:
             texts[summary[1]] = summary[0]
+
     with open('../clustering/summary_dict.json', 'w+') as outfile:
         json.dump(texts, outfile)
 
@@ -60,16 +52,55 @@ def findGoodSummaries(ref_summary, summary_texts, threshold, type):
     good_summaries = []
     r = Rouge()
     for summary in summary_texts:
-        score = r.get_scores(ref_summary, summary)[0][type]['f']
-        if score > threshold:
-            good_summaries.append(summary)
+        try:
+            score = r.get_scores(ref_summary, summary, ignore_empty=True)[0][type]['f']
+            if score > threshold:
+                good_summaries.append(summary)
+        except ValueError:
+            print('this pair had an invalid input\nref summary: '+ref_summary+'\nsummary: '+summary)
     return good_summaries
 
-def main():
-    threshold = float(sys.argv[1])
-    type = sys.argv[2]
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(removeSummaries(threshold, type))
+def printNumArticles(type):
+    with open('../clustering/aspair_'+type+'.json') as f:
+        articles = json.load(f)
+    arts = len(articles)
+    sums = []
+    for key in articles:
+        sums.append(len(articles[key]))
+    print('num articles: '+str(arts)+'\nnum summaries: '+str(np.sum(sums))+
+        '\navg # summaries per article: '+str(np.mean(sums)))
 
 if __name__ == '__main__':
-    main()
+
+    with open('../clustering/summary_dict.json') as dictfile:
+        summary_dict = json.load(dictfile)
+    with open('../clustering/articleSummaryPairsFinal.json') as f:
+        articles = json.load(f)
+    print('opened pairing file')
+
+
+    cleaned_articles = {}
+    args = []
+    for article in articles:
+        args.append((article, cleaned_articles))
+
+    print('beginning cluster cleaning')
+    pbar = tqdm(total=len(articles), desc="articles cleaned")
+    with Pool() as pool:
+        for cleaned_summaries, key in pool.imap_unordered(removeSummaries, articles):
+            if len(cleaned_summaries) >= 2:
+                for summary in cleaned_summaries:
+                    if key in cleaned_articles.keys():
+                        if not (summary in cleaned_articles[key]):
+                            cleaned_articles[key].append(summary)
+                    else:
+                        cleaned_articles[key] = cleaned_summaries
+            pbar.update(1)
+
+    arts = len(cleaned_articles)
+    sums = []
+    for key in cleaned_articles:
+        sums.append(len(articles[key]))
+    print('num articles: '+str(arts)+'\nnum summaries: '+str(np.sum(sums))+
+        '\navg # summaries per article: '+str(np.mean(sums)))
+    print(str(0.15))

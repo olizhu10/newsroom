@@ -3,7 +3,7 @@ import csv
 import pprint
 from metric_analysis import CLUSTERS
 
-"""Creates a csv file with w+sms scores between summaries in a cluster"""
+"""Creates a csv file with s+wms scores between summaries in a cluster"""
 
 def write_file():
     for key in CLUSTERS:

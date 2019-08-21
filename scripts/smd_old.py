@@ -11,8 +11,9 @@ from collections import Counter
 from allennlp.commands.elmo import ElmoEmbedder
 
 stop_words = set(stopwords.words('english'))
-WORD_REP = "glove"
-METRIC = "s+wms"
+
+print("loading spacy")
+nlp = spacy.load('en_core_web_md')
 
 def tokenize_texts(inLines):
 
@@ -28,7 +29,7 @@ def tokenize_texts(inLines):
 		text_doc = []
 
 		for i in range(2):  # iterate over ref and hyp
-			text = doc[i]
+			text = doc.split('\t')[i].strip()
 			sent_list = [sent for sent in nltk.sent_tokenize(text)]
 			if WORD_REP == "glove":
 				IDs = [[nlp.vocab.strings[t.text.lower()] for t in nlp(sent) if t.text.isalpha() and t.text.lower() not in stop_words] for sent in sent_list]
@@ -164,19 +165,30 @@ def get_weights(id_doc):
 
 	return id_lists, d_weights
 
-def score_list(inLines, results_list):
-	res = []
-	for i in range(len(inLines)):
-		[ref_str, hyp_str] = inLines[i]
-		dict = {'id':i, 'ref':ref_str, 'hyp':hyp_str.strip("\n"), 'score':results_list[i]}
-		res.append(dict)
-	return res
 
-def calc_smd(input_f, model):
-	global nlp
-	nlp = model
-	#print("Found", len(inLines), "documents")
-	token_doc_list, text_doc_list = tokenize_texts(input_f)
+def print_score(inLines, out_file, results_list):
+
+	# input: raw text, the output file, and the results
+	# output: scores will be written to output file
+
+	of = open(out_file, 'w')
+	of.write("Average: " + str(np.mean(results_list)) + "\n")
+	of.write("ID\tReference\tHypothesis\t"+METRIC)
+	for i in range(len(inLines)):
+		[ref_str, hyp_str] = inLines[i].split('\t')[:2]
+		of.write('\n' + str(i) + '\t' + ref_str + '\t' + hyp_str.strip("\n"))
+		of.write('\t' + str(results_list[i]))
+	of.write('\n')
+	of.close()
+	return "Done!"
+
+
+def calc_smd(input_f, output_f=""):
+	inF = open(input_f, 'r')
+	inLines = inF.readlines()
+	inF.close()
+	print("Found", len(inLines), "documents")
+	token_doc_list, text_doc_list = tokenize_texts(inLines)
 	count = 0
 	results_list = []
 	for doc_id in range(len(token_doc_list)):
@@ -196,6 +208,28 @@ def calc_smd(input_f, model):
 		sim = math.exp(-dist)  # switch to similarity
 		results_list.append(sim)
 		if doc_id == int((len(token_doc_list) / 10.) * count):
-			#print(str(count * 10) + "% done with calculations")
+			print(str(count * 10) + "% done with calculations")
 			count += 1
-	return score_list(input_f, results_list)
+	if output_f != "":
+		print_score(inLines, output_f, results_list)
+	else:
+		print("Results: ", np.mean(results_list))
+
+	return 'Done!'
+
+
+if __name__ == "__main__":
+	in_f = sys.argv[1]
+	[WORD_REP, METRIC] = sys.argv[2:4]
+	word_rep_opt = ["glove", "elmo"]
+	metric_opt = ["wms", "sms", "s+wms"]
+	if (WORD_REP not in word_rep_opt) or (METRIC not in metric_opt):
+		raise Exception("Please choose parameters from the following list:\nWORD_REP:\tglove, elmo\n \
+		METRIC:\twms, sms, s+wms")
+	extension = "_" + WORD_REP + "_" + METRIC + ".out"
+	out_f = ".".join(in_f.split(".")[:-1]) + extension
+
+	if WORD_REP == "elmo":
+		MODEL = ElmoEmbedder()
+
+	calc_smd(in_f, out_f)

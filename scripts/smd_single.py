@@ -15,14 +15,6 @@ WORD_REP = "glove"
 METRIC = "s+wms"
 
 def tokenize_texts(inLines):
-
-	# input: raw input text
-	# output: a list of token IDs, where a id_doc=[[ref],[hyp]],
-	#           ref/hyp=[sent1, sent2,...], and a sent=[wordID1, wordID2 ... ]
-
-	id_docs = []
-	text_docs = []
-
 	for doc in inLines:
 		id_doc = []
 		text_doc = []
@@ -30,20 +22,14 @@ def tokenize_texts(inLines):
 		for i in range(2):  # iterate over ref and hyp
 			text = doc[i]
 			sent_list = [sent for sent in nltk.sent_tokenize(text)]
-			if WORD_REP == "glove":
-				IDs = [[nlp.vocab.strings[t.text.lower()] for t in nlp(sent) if t.text.isalpha() and t.text.lower() not in stop_words] for sent in sent_list]
-			if WORD_REP == "elmo":
-				# no word IDs, just use spacy ids, but without lower/stop words
-				# IDs = [[nlp.vocab.strings[t.text] for t in nlp(sent)] for sent in sent_list]
-				IDs = [[nlp.vocab.strings[t.text] for t in nlp(sent)] for sent in sent_list]
+			IDs = [[nlp.vocab.strings[t.text.lower()] for t in nlp(sent) if t.text.isalpha() and t.text.lower() not in stop_words] for sent in sent_list]
 			id_list = [x for x in IDs if x != []]  # get rid of empty sents
 			text_list = [[token.text for token in nlp(x)] for x in sent_list if x != []]
 
 			id_doc.append(id_list)
 			text_doc.append(text_list)
-		id_docs.append(id_doc)
-		text_docs.append(text_doc)
-	return id_docs, text_docs
+
+	return id_doc, text_doc
 
 
 def get_embeddings(id_doc, text_doc):
@@ -61,29 +47,13 @@ def get_embeddings(id_doc, text_doc):
 	sent_ids = [[], []]  # keep track of sentence IDs for rep and hyp. won't use this for wms
 
 	for i in range(2):
-
 		for sent_i in range(len(id_doc[i])):
 			sent_emb = []
 			word_emb_list = []  # list of a sentence's word embeddings
 			# get word embeddings
-			if WORD_REP == "glove":
-				for wordID in id_doc[i][sent_i]:
-					word_emb = nlp.vocab.get_vector(wordID)
-					word_emb_list.append(word_emb)
-			if WORD_REP == "elmo":
-				sent_vec = MODEL.embed_batch([text_doc[i][sent_i]])
-				sent_vec = sent_vec[0]  # 1 elt in batch
-				word_emb_list = np.average(sent_vec, axis=0)  # average layers to get word embs
-				# remove stopwords from elmo
-				keep_inds = []
-				for word_i in range(len(text_doc[i][sent_i])):
-					word = text_doc[i][sent_i][word_i]
-					# if the lower-cased word is a stop word or not alphabetic, remove it from emb and id
-					if (word.isalpha()) and (word.lower() not in stop_words):
-						keep_inds.append(word_i)
-				word_emb_list = [word_emb_list[x] for x in range(len(text_doc[i][sent_i])) if x in keep_inds]
-				id_doc[i][sent_i] = [id_doc[i][sent_i][x] for x in range(len(text_doc[i][sent_i])) if x in keep_inds]
-				assert(len(word_emb_list) == len(id_doc[i][sent_i]))
+			for wordID in id_doc[i][sent_i]:
+				word_emb = nlp.vocab.get_vector(wordID)
+				word_emb_list.append(word_emb)
 
 			# add word embeddings to embedding dict
 			if METRIC != "sms":
@@ -92,11 +62,6 @@ def get_embeddings(id_doc, text_doc):
 					w_id = id_doc[i][sent_i][w_ind]
 					if w_id not in rep_map:
 						rep_map[w_id] = word_emb_list[w_ind]
-					# for contextualized embeddings, replace word ID with a unique ID and add it to the embedding dict
-					elif WORD_REP != "glove":
-						rep_map[new_id] = word_emb_list[w_ind]
-						id_doc[i][sent_i][w_ind] = new_id
-						new_id += 1
 
 			# add sentence embeddings to embedding dict
 			if (METRIC != "wms") and (len(word_emb_list) > 0):
@@ -164,38 +129,22 @@ def get_weights(id_doc):
 
 	return id_lists, d_weights
 
-def score_list(inLines, results_list):
-	res = []
-	for i in range(len(inLines)):
-		[ref_str, hyp_str] = inLines[i]
-		dict = {'id':i, 'ref':ref_str, 'hyp':hyp_str.strip("\n"), 'score':results_list[i]}
-		res.append(dict)
-	return res
-
-def calc_smd(input_f, model):
+def calc_smd(ref, hyp, model):
 	global nlp
 	nlp = model
-	#print("Found", len(inLines), "documents")
-	token_doc_list, text_doc_list = tokenize_texts(input_f)
+	doc, text = tokenize_texts([ref, hyp])
 	count = 0
 	results_list = []
-	for doc_id in range(len(token_doc_list)):
-		doc = token_doc_list[doc_id]
-		text = text_doc_list[doc_id]
-		# transform doc to ID list, both words and/or sentences. get ID dict that maps to emb
-		[ref_ids, hyp_ids], rep_map = get_embeddings(doc, text)
-		# get D values
-		[ref_id_list, hyp_id_list], [ref_d, hyp_d] = get_weights([ref_ids, hyp_ids])
-		# format doc as expected: {id: (id, ref_id_list, ref_d)}
-		doc_dict = {"0": ("ref", ref_id_list, ref_d), "1": ("hyp", hyp_id_list, hyp_d)}
-		calc = WMD(rep_map, doc_dict, vocabulary_min=1)
-		try:
-			dist = calc.nearest_neighbors(str(0), k=1, early_stop=1)[0][1]  # how far is hyp from ref?
-		except:
-			print(doc, text)
-		sim = math.exp(-dist)  # switch to similarity
-		results_list.append(sim)
-		if doc_id == int((len(token_doc_list) / 10.) * count):
-			#print(str(count * 10) + "% done with calculations")
-			count += 1
-	return score_list(input_f, results_list)
+	# transform doc to ID list, both words and/or sentences. get ID dict that maps to emb
+	[ref_ids, hyp_ids], rep_map = get_embeddings(doc, text)
+	# get D values
+	[ref_id_list, hyp_id_list], [ref_d, hyp_d] = get_weights([ref_ids, hyp_ids])
+	# format doc as expected: {id: (id, ref_id_list, ref_d)}
+	doc_dict = {"0": ("ref", ref_id_list, ref_d), "1": ("hyp", hyp_id_list, hyp_d)}
+	calc = WMD(rep_map, doc_dict, vocabulary_min=1)
+	try:
+		dist = calc.nearest_neighbors(str(0), k=1, early_stop=1)[0][1]  # how far is hyp from ref?
+	except:
+		print(doc, text)
+	sim = math.exp(-dist)  # switch to similarity
+	return sim
