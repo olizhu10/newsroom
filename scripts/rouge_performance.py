@@ -17,7 +17,7 @@ def removeSummaries(key):
     type='rouge-l'
     summaries = articles[key]
     summary_texts, ref_summary = getSummaryTexts(summaries, key)
-    cleaned_summaries = findGoodSummaries(ref_summary, summary_texts, threshold, type)
+    cleaned_summaries = findGoodSummaries(ref_summary, summary_texts)
     return cleaned_summaries, key
 
 def getSummaryTexts(summaries, article):
@@ -48,7 +48,9 @@ def summaryDict():
     with open('../clustering/summary_dict.json', 'w+') as outfile:
         json.dump(texts, outfile)
 
-def findGoodSummaries(ref_summary, summary_texts, threshold, type):
+def findGoodSummaries(ref_summary, summary_texts):
+    threshold = 0.25
+    type = 'rouge-1'
     good_summaries = []
     r = Rouge()
     for summary in summary_texts:
@@ -78,7 +80,6 @@ if __name__ == '__main__':
         articles = json.load(f)
     print('opened pairing file')
 
-
     cleaned_articles = {}
     args = []
     for article in articles:
@@ -103,4 +104,7 @@ if __name__ == '__main__':
         sums.append(len(articles[key]))
     print('num articles: '+str(arts)+'\nnum summaries: '+str(np.sum(sums))+
         '\navg # summaries per article: '+str(np.mean(sums)))
-    print(str(0.15))
+    print(str(0.25))
+
+    with open('../clustering/rouge1_article_summary_pairs0.25.json', 'w+') as f:
+        json.dump(cleaned_articles, f)
