@@ -73,7 +73,7 @@ if __name__ == '__main__':
     '''
 
     pbar = tqdm(total=len(list(articles.keys())), desc="articles cleaned")
-    with Pool() as pool:
+    with Pool(processes=15) as pool:
         for summary_sets, key in pool.imap_unordered(removeSummaries, articles):
             for i in range(len(summary_sets)):
                 if len(summary_sets[i]) >= 2:
