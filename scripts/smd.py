@@ -15,20 +15,21 @@ WORD_REP = "glove"
 METRIC = "s+wms"
 
 def tokenize_texts(inLines):
-
 	# input: raw input text
 	# output: a list of token IDs, where a id_doc=[[ref],[hyp]],
 	#           ref/hyp=[sent1, sent2,...], and a sent=[wordID1, wordID2 ... ]
 
 	id_docs = []
+	# TODO: rewrite this
 	text_docs = []
 
 	for doc in inLines:
 		id_doc = []
+		# TODO: rewrite this
 		text_doc = []
 
 		for i in range(2):  # iterate over ref and hyp
-			text = doc[i]
+			text = doc[i].strip()
 			sent_list = [sent for sent in nltk.sent_tokenize(text)]
 			if WORD_REP == "glove":
 				IDs = [[nlp.vocab.strings[t.text.lower()] for t in nlp(sent) if t.text.isalpha() and t.text.lower() not in stop_words] for sent in sent_list]
@@ -37,12 +38,16 @@ def tokenize_texts(inLines):
 				# IDs = [[nlp.vocab.strings[t.text] for t in nlp(sent)] for sent in sent_list]
 				IDs = [[nlp.vocab.strings[t.text] for t in nlp(sent)] for sent in sent_list]
 			id_list = [x for x in IDs if x != []]  # get rid of empty sents
+			# TODO: rewrite this
 			text_list = [[token.text for token in nlp(x)] for x in sent_list if x != []]
 
 			id_doc.append(id_list)
+			# TODO: rewrite this
 			text_doc.append(text_list)
 		id_docs.append(id_doc)
+		# TODO: rewrite this
 		text_docs.append(text_doc)
+	#TODO: rewrite this
 	return id_docs, text_docs
 
 
@@ -164,26 +169,35 @@ def get_weights(id_doc):
 
 	return id_lists, d_weights
 
-def score_list(inLines, results_list):
+def score_list(results_list):
 	res = []
-	for i in range(len(inLines)):
-		[ref_str, hyp_str] = inLines[i]
-		dict = {'id':i, 'ref':ref_str, 'hyp':hyp_str.strip("\n"), 'score':results_list[i]}
+	for i in range(len(results_list)):
+		ref_str = results_list[i][0][0]
+		hyp_str = results_list[i][0][1]
+		dict = {'id':i, 'ref':ref_str, 'hyp':hyp_str.strip("\n"), 'score':results_list[i][1]}
 		res.append(dict)
 	return res
 
-def calc_smd(input_f, model):
+
+def calc_smd(inLines, model):
 	global nlp
 	nlp = model
 	#print("Found", len(inLines), "documents")
-	token_doc_list, text_doc_list = tokenize_texts(input_f)
-	count = 0
+	# TODO: rewrite this
+	token_doc_list, text_doc_list = tokenize_texts(inLines)
 	results_list = []
 	for doc_id in range(len(token_doc_list)):
 		doc = token_doc_list[doc_id]
+		# TODO: rewrite this
 		text = text_doc_list[doc_id]
 		# transform doc to ID list, both words and/or sentences. get ID dict that maps to emb
-		[ref_ids, hyp_ids], rep_map = get_embeddings(doc, text)
+		# TODO: rewrite this
+		try:
+			[ref_ids, hyp_ids], rep_map = get_embeddings(doc, text)
+		except ValueError:
+			print(inLines[doc_id])
+			print('ValueError: max() arg is an empty sequence; get_embeddings')
+			continue
 		# get D values
 		[ref_id_list, hyp_id_list], [ref_d, hyp_d] = get_weights([ref_ids, hyp_ids])
 		# format doc as expected: {id: (id, ref_id_list, ref_d)}
@@ -191,11 +205,21 @@ def calc_smd(input_f, model):
 		calc = WMD(rep_map, doc_dict, vocabulary_min=1)
 		try:
 			dist = calc.nearest_neighbors(str(0), k=1, early_stop=1)[0][1]  # how far is hyp from ref?
-		except:
-			print(doc, text)
-		sim = math.exp(-dist)  # switch to similarity
-		results_list.append(sim)
-		if doc_id == int((len(token_doc_list) / 10.) * count):
-			#print(str(count * 10) + "% done with calculations")
-			count += 1
-	return score_list(input_f, results_list)
+			sim = math.exp(-dist)  # switch to similarity
+		except IndexError:
+			print('dist = calc.nearest_neighbors(str(0), k=1, early_stop=1)[0][1]')
+			print('IndexError: list index out of range')
+			print(inLines[doc_id])
+			continue
+		except UnboundLocalError:
+			print('dist could not be calculated')
+			print(inLines[doc_id])
+			continue
+		except ValueError:
+			print('Too little vocabulary')
+			print(inLines[doc_id])
+			continue
+
+		results_list.append((inLines[doc_id],sim))
+
+	return score_list(results_list)

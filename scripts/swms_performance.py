@@ -18,33 +18,36 @@ nlp = spacy.load('en_core_web_md')
 print('spacy loaded')
 
 def removeSummaries(key):
-    threshold = 0.02
     summaries = articles[key]
     ref_summary = summary_dict[key]
-    summary_texts, inputs = getSummaryTexts(summaries, ref_summary, key)
-    cleaned_summaries = findGoodSummaries(ref_summary, summary_texts, threshold)
-    return cleaned_summaries, key
+    inputs = getSummaryTexts(summaries, ref_summary)
+    #print(inputs)
+    scores = calc_smd(inputs, nlp)
+    return findGoodSummaries(ref_summary, scores), key
 
-def getSummaryTexts(summaries, ref_summary, article):
-    texts = []
+def getSummaryTexts(summaries, ref_summary):
+    #texts = []
     inputs = []
     for summary in summaries:
         summary_text = summary_dict[summary]
-        if not summary in texts:
-            texts.append(summary_text)
-            inputs.append([ref_summary, summary_text])
-    return texts, inputs
+        #texts.append(summary_text)
+        inputs.append([ref_summary, summary_text])
+    return inputs
 
-def findGoodSummaries(ref_summary, summary_texts, threshold):
-    good_summaries = []
-    for summary in summary_texts:
-        score = calc_smd([ref_summary, summary], nlp)
-        if score[0] > threshold:
-            good_summaries.append(summary)
-    #for dict in scores:
-    #    if dict['score'] > threshold:
-    #        good_summaries.append(dict['hyp'])
-    return good_summaries
+def findGoodSummaries(ref_summary, scores):
+    good_summaries001 = []
+    good_summaries002 = []
+    good_summaries003 = []
+    for dict in scores:
+        score = dict['score']
+        summary = dict['hyp']
+        if score > 0.03:
+            good_summaries003.append(summary)
+        if score > 0.02:
+            good_summaries002.append(summary)
+        if score > 0.01:
+            good_summaries001.append(summary)
+    return [good_summaries001, good_summaries002, good_summaries003]
 
 
 if __name__ == '__main__':
@@ -54,24 +57,39 @@ if __name__ == '__main__':
         articles = json.load(f)
     print('opened pairing and summary files')
 
-    cleaned_articles = {}
+    cleaned_articles = [{},{},{}]
     print('beginning article cleaning')
-    pbar = tqdm(total=len(articles), desc="articles cleaned")
-    with Pool() as pool:
-        for cleaned_summaries, key in pool.imap_unordered(removeSummaries, articles):
-            if len(cleaned_summaries) >= 2:
-                for summary in cleaned_summaries:
-                    if key in cleaned_articles.keys():
-                        if not (summary in cleaned_articles[key]):
-                            cleaned_articles[key].append(summary)
+    '''
+    for key in tqdm(list(articles.keys())[2195:],desc="articles cleaned"):
+        summary_sets, _ = removeSummaries(key)
+        for i in range(len(summary_sets)):
+            if len(summary_sets[i]) >= 2:
+                for summary in summary_sets[i]:
+                    if key in cleaned_articles[i].keys():
+                        if not (summary in cleaned_articles[i][key]):
+                            cleaned_articles[i][key].append(summary)
                     else:
-                        cleaned_articles[key] = cleaned_summaries
+                        cleaned_articles[i][key] = summary_sets[i]
+    '''
+
+    pbar = tqdm(total=len(list(articles.keys())), desc="articles cleaned")
+    with Pool() as pool:
+        for summary_sets, key in pool.imap_unordered(removeSummaries, articles):
+            for i in range(len(summary_sets)):
+                if len(summary_sets[i]) >= 2:
+                    for summary in summary_sets[i]:
+                        if key in cleaned_articles[i].keys():
+                            if not (summary in cleaned_articles[i][key]):
+                                cleaned_articles[i][key].append(summary)
+                        else:
+                            cleaned_articles[i][key] = summary_sets[i]
             pbar.update(1)
 
-    arts = len(cleaned_articles)
-    sums = []
-    for key in cleaned_articles:
-        sums.append(len(articles[key]))
-    print('num articles: '+str(arts)+'\nnum summaries: '+str(np.sum(sums))+
-        '\navg # summaries per article: '+str(np.mean(sums)))
-    print(str(0.02))
+    for i in range(len(cleaned_articles)):
+        arts = len(cleaned_articles[i])
+        print('set: '+str(i))
+        sums = []
+        for key in cleaned_articles[i]:
+            sums.append(len(cleaned_articles[i][key]))
+        print('num articles: '+str(arts)+'\nnum summaries: '+str(np.sum(sums))+
+            '\navg # summaries per article: '+str(np.mean(sums)))
