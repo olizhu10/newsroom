@@ -93,3 +93,6 @@ if __name__ == '__main__':
             sums.append(len(cleaned_articles[i][key]))
         print('num articles: '+str(arts)+'\nnum summaries: '+str(np.sum(sums))+
             '\navg # summaries per article: '+str(np.mean(sums)))
+
+    with jsonl.open('swms_article_summary_pairs.json', 'w+') as f:
+        f.write(cleaned_articles)
